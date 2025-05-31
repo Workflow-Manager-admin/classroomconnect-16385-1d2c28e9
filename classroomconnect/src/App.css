@@ -253,30 +253,25 @@ body, .app-bg-contrast {
 }
 
 /* Classrooms flex row */
+/* (Removed horizontal flex layout for classrooms-row in new vertical structure) */
 .classrooms-row {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-top: 7px;
+  /* obsolete: now section is column layout with title above cards */
+  display: block;
+  margin-top: 0;
   margin-bottom: 0;
-  gap: 24px;
-}
-@media (max-width: 740px) {
-  .classrooms-row {
-    flex-direction: column;
-    gap: 9px;
-    align-items: stretch;
-  }
+  gap: 0;
 }
 .classrooms-title {
-  font-weight: 800;
-  font-size: 1.15em;
+  font-weight: 900;
+  font-size: 1.21em;
   color: var(--navy);
-  margin-top: 9px;
-  margin-bottom: 0;
-  margin-right: 20px;
-  min-width: 138px;
+  margin-top: 0;
+  margin-bottom: 13px;
+  margin-right: 0;
+  min-width: unset;
+  text-align: left;
+  letter-spacing: 0.1px;
+  padding-left: 2px;
   user-select: none;
 }
 .classcards-row {
