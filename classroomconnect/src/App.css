@@ -207,9 +207,15 @@ body,
 .cc-main-big-input {
   width: 100%;
   max-width: 275px;
-  min-width: 145px;
-  font-size: 1.10em;
+  min-width: 140px;
+  font-size: 1.13em;
   margin-bottom: 0;
+  border-radius: var(--cta-radius);
+  text-align: center;
+  font-weight: 700;
+  background: #fcfcfd;
+  border: 2px solid var(--primary-blue);
+  box-shadow: 0 1.5px 4px 0 rgba(145,170,198,0.045);
 }
 
 .cc-main-big-btn {
