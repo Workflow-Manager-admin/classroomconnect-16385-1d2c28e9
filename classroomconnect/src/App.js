@@ -1180,5 +1180,969 @@ function TaskManagerCard({groupIdx, group, groupTasks, members, onTaskAdd, onTas
 
 // --- NEW SERVICES PANEL END ---
 
-// ...rest of helper/export...
+// CLASSROOM CHAT (unchanged, reinserted for build)
+function ClassroomChat({
+  classroom,
+  loggedInUser,
+  userCode,
+  chatData,
+  setChatData,
+}) {
+  const classChatId = classroom.code;
+  const [messageInput, setMessageInput] = useState("");
+  const messagesEndRef = useRef(null);
+  const [incomingNotif, setIncomingNotif] = useState(null);
+  const chatChannelRef = useRef(null);
+
+  useEffect(() => {
+    let channelName = "classroom-chat-" + classChatId;
+    let channel = null;
+    if ("BroadcastChannel" in window) {
+      channel = new window.BroadcastChannel(channelName);
+      channel.onmessage = (ev) => {
+        const { type, msgObj } = ev.data || {};
+        if (type === "chat-message" && msgObj && msgObj.userCode !== userCode) {
+          setChatData(prev => {
+            const prevArr = Array.isArray(prev[classChatId]) ? prev[classChatId] : [];
+            if (prevArr.some(m => m.id === msgObj.id)) return prev;
+            setIncomingNotif({
+              user: msgObj.user,
+              text: msgObj.text,
+              ts: msgObj.ts,
+            });
+            return {
+              ...prev,
+              [classChatId]: [...prevArr, msgObj].slice(-150)
+            };
+          });
+        }
+      };
+    }
+    chatChannelRef.current = channel;
+    return () => {
+      if (channel) channel.close();
+    };
+    // eslint-disable-next-line
+  }, [classChatId, userCode]);
+
+  useEffect(() => {
+    if (incomingNotif) {
+      const timeout = setTimeout(() => setIncomingNotif(null), 4500);
+      return () => clearTimeout(timeout);
+    }
+  }, [incomingNotif]);
+
+  useEffect(() => {
+    if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [chatData[classChatId]]);
+
+  const createMsgId = () =>
+    "m-" +
+    Math.random().toString(36).slice(2, 9) +
+    Date.now().toString().slice(-5);
+
+  function handleSend(e) {
+    e.preventDefault();
+    const trimmed = messageInput.trim();
+    if (!trimmed) return;
+    const msgObj = {
+      id: createMsgId(),
+      user: loggedInUser,
+      userCode,
+      text: trimmed,
+      ts: Date.now(),
+    };
+    setChatData(prev => {
+      const prevArr = Array.isArray(prev[classChatId]) ? prev[classChatId] : [];
+      return {
+        ...prev,
+        [classChatId]: [...prevArr, msgObj].slice(-150),
+      };
+    });
+    if (chatChannelRef.current) {
+      chatChannelRef.current.postMessage({
+        type: "chat-message",
+        msgObj,
+      });
+    }
+    setMessageInput("");
+  }
+
+  function deleteMsg(msgId) {
+    setChatData(prev => ({
+      ...prev,
+      [classChatId]: prev[classChatId].filter(m => m.id !== msgId),
+    }));
+  }
+
+  const messages = Array.isArray(chatData[classChatId])
+    ? [...chatData[classChatId]].sort((a, b) => a.ts - b.ts)
+    : [];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 370 }}>
+      <h2 style={{ marginTop: 0, color: "#175880", marginBottom: 9, fontWeight: 800, fontSize: 22 }}>
+        Public Chat
+      </h2>
+      {incomingNotif && (
+        <div
+          style={{
+            background: "#ffd166",
+            color: "#06436b",
+            padding: "8px 18px",
+            borderRadius: 10,
+            marginBottom: 7,
+            fontWeight: 800,
+            fontSize: 15.5,
+            boxShadow: "0 2.5px 8px 0 rgba(255,193,80,0.07)"
+          }}
+          aria-live="polite"
+        >
+          💬 Message from <span style={{ color: "#b57918" }}>{incomingNotif.user}</span>:{" "}
+          <span>{incomingNotif.text}</span>
+        </div>
+      )}
+      <div
+        className="chat-messages-panel"
+        style={{
+          flex: 1,
+          minHeight: 180,
+          maxHeight: 345,
+          overflowY: "auto",
+          padding: "13px 2px 4px 1px",
+          background: "#F6F8FF",
+          borderRadius: 13,
+          border: "1.5px solid #dde3ef",
+          marginBottom: 13,
+          boxShadow: "0 1.5px 8px 0 rgba(90,140,210,0.05)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {messages.length === 0 && (
+          <div style={{ color: "#8bb", fontWeight: 500, opacity: 0.74, textAlign: "center", marginTop: 25, fontSize: 16 }}>
+            No messages yet. Say hello! 👋
+          </div>
+        )}
+        {messages.map(msg => {
+          const mine = msg.userCode === userCode;
+          return (
+            <div
+              key={msg.id}
+              style={{
+                display: "flex",
+                flexDirection: mine ? "row-reverse" : "row",
+                alignItems: "flex-end",
+                margin: "5px 0",
+                gap: 9,
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: "82%",
+                  background: mine ? "linear-gradient(96deg,#FFD166 80%,#FAF8EA 100%)" : "#e6f3ff",
+                  color: mine ? "#013" : "#1a2944",
+                  borderRadius: mine ? "18px 18px 4px 19px" : "18px 18px 19px 4px",
+                  padding: "10px 15px 9px 15px",
+                  boxShadow: mine
+                    ? "0 1.5px 8px 0 rgba(220,190,80,0.08)"
+                    : "0 1.5px 8px 0 rgba(70,155,210,0.09)",
+                  fontWeight: mine ? 800 : 600,
+                  fontSize: 16.5,
+                  minWidth: 58,
+                  wordBreak: "break-word",
+                  position: "relative",
+                  marginLeft: mine ? 0 : 2,
+                  marginRight: mine ? 2 : 0,
+                }}
+              >
+                <span style={{ fontSize: 14.4, fontWeight: 700, color: mine ? "#b37a10" : "#1762ab", opacity: 0.82 }}>
+                  {msg.user}
+                </span>
+                <div style={{ fontWeight: 600, margin: "4px 0 0 0" }}>{msg.text}</div>
+                <div style={{ fontSize: 12.2, color: "#44689b", marginTop: 3, opacity: 0.7, fontWeight: 500 }}>
+                  {new Date(msg.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </div>
+                {mine && (
+                  <button
+                    aria-label="Delete"
+                    title="Delete message"
+                    onClick={() => deleteMsg(msg.id)}
+                    style={{
+                      position: "absolute",
+                      right: 5,
+                      top: 4,
+                      background: "none",
+                      border: "none",
+                      fontSize: 13,
+                      color: "#a43",
+                      opacity: 0.65,
+                      cursor: "pointer",
+                      fontWeight: 800,
+                      padding: 0,
+                    }}
+                  >
+                    🗑️
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+      <form
+        onSubmit={handleSend}
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          gap: 8,
+          background: "#fffced",
+          padding: "8px 10px 9px 10px",
+          borderTop: "1.5px solid #e5e3bf",
+          borderRadius: 11,
+          position: "relative",
+          boxShadow: "0 0.5px 4px 0 rgba(170,160,89,0.07)",
+        }}
+      >
+        <input
+          type="text"
+          value={messageInput}
+          onChange={e => setMessageInput(e.target.value)}
+          placeholder="Type a message..."
+          maxLength={240}
+          required
+          style={{
+            flex: 1,
+            borderRadius: 16,
+            border: "2px solid #FFD166",
+            padding: "10px 15px",
+            fontWeight: 700,
+            fontSize: 16,
+            fontFamily: "var(--font-main)",
+            background: "#fffef8",
+            color: "#071133",
+            outline: "none",
+            marginRight: 2,
+            boxShadow: "0 1px 3px 0 rgba(255,220,90,0.05)",
+          }}
+          autoFocus
+        />
+        <button
+          type="submit"
+          className="main-action-btn main-action-btn-create"
+          style={{
+            minWidth: 55,
+            padding: "7px 19px",
+            fontWeight: 900,
+            fontSize: 17,
+          }}
+          aria-label="Send"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
+}
+
+
+// BULLETIN BOARD (unchanged, reinserted for build)
+function BulletinBoard({ classroom, loggedInUser, userCode }) {
+  const boardSessionKey = "bulletinBoardPosts";
+  const [posts, setPosts] = React.useState(() => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}");
+      return all[classroom.code] || [];
+    } catch {
+      return [];
+    }
+  });
+
+  const syncFromSession = () => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}");
+      setPosts(all[classroom.code] || []);
+    } catch {
+      setPosts([]);
+    }
+  };
+
+  React.useEffect(() => {
+    try {
+      let all = {};
+      try { all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}"); } catch {}
+      all[classroom.code] = posts;
+      window.sessionStorage.setItem(boardSessionKey, JSON.stringify(all));
+    } catch {}
+  }, [posts, classroom.code]);
+
+  const [formOpen, setFormOpen] = React.useState(false);
+  const [editingPostId, setEditingPostId] = React.useState(null);
+  const [formTitle, setFormTitle] = React.useState("");
+  const [formContent, setFormContent] = React.useState("");
+  const [formImportance, setFormImportance] = React.useState("average");
+  const [formReminder, setFormReminder] = React.useState(""); // date-time string
+  const [showHighOnly, setShowHighOnly] = React.useState(false);
+  const [showRemindersOnly, setShowRemindersOnly] = React.useState(false);
+
+  const sortedPosts = [...posts]
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .filter(p => {
+      let ok = true;
+      if (showHighOnly) ok = ok && p.importance === "high";
+      if (showRemindersOnly) ok = ok && !!p.reminder;
+      return ok;
+    });
+
+  function resetForm() {
+    setFormTitle("");
+    setFormContent("");
+    setFormImportance("average");
+    setFormReminder("");
+    setEditingPostId(null);
+  }
+
+  function handlePostSubmit(e) {
+    e.preventDefault();
+    const trimmedTitle = formTitle.trim();
+    const trimmedContent = formContent.trim();
+    if (!trimmedTitle || !trimmedContent) return;
+
+    if (editingPostId) {
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === editingPostId
+            ? { ...p, title: trimmedTitle, content: trimmedContent, importance: formImportance, reminder: formReminder }
+            : p
+        )
+      );
+    } else {
+      const newPost = {
+        id: "b" + Math.random().toString(36).slice(2, 12) + Date.now().toString().slice(-6),
+        author: loggedInUser,
+        authorCode: userCode,
+        title: trimmedTitle,
+        content: trimmedContent,
+        importance: formImportance,
+        reminder: formReminder || "",
+        timestamp: Date.now(),
+      };
+      setPosts(prev => [newPost, ...prev].slice(0, 60)); // cap to 60 most recent
+    }
+    setFormOpen(false);
+    resetForm();
+  }
+
+  function handleEditPost(post) {
+    setEditingPostId(post.id);
+    setFormTitle(post.title);
+    setFormContent(post.content);
+    setFormImportance(post.importance);
+    setFormReminder(post.reminder || "");
+    setFormOpen(true);
+  }
+
+  function handleDeletePost(postId) {
+    setPosts(prev => prev.filter(p => p.id !== postId));
+  }
+
+  React.useEffect(() => {
+    if (editingPostId) setFormOpen(true);
+  }, [editingPostId]);
+
+  const importanceColors = {
+    high: { bg: "#ffe5e5", color: "#c8352a", border: "#ec5555" },
+    average: { bg: "#f6f2fa", color: "#684580", border: "#b2a0ce" },
+    low: { bg: "#f4fcf8", color: "#178e53", border: "#74e0b2" },
+  };
+  const importanceLabels = {
+    high: "High",
+    average: "Average",
+    low: "Low",
+  };
+  const importanceIcons = {
+    high: "‼️",
+    average: "🔔",
+    low: "📝",
+  };
+  function getImportanceStyle(importance) {
+    return importanceColors[importance] || importanceColors.average;
+  }
+  function shouldHighlight(post) {
+    if (post.importance === "high") return true;
+    if (post.reminder) {
+      try {
+        if (new Date(post.reminder).getTime() > Date.now() - 900000) return true;
+      } catch {}
+    }
+    return false;
+  }
+  function formatTs(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function formatReminder(rem) {
+    if (!rem) return "";
+    try {
+      const d = new Date(rem);
+      return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return rem;
+    }
+  }
+
+  return (
+    <div style={{ minHeight: 365, paddingBottom: 17 }}>
+      <h2 style={{
+        color: "#19649e", fontWeight: 800, marginTop: 1, marginBottom: 12, fontSize: 23,
+        display: "flex", alignItems: "center"
+      }}>
+        <span role="img" aria-label="Bulletin Board" style={{ marginRight: 7 }}>📌</span>
+        Bulletin Board
+        <button
+          className="main-action-btn main-action-btn-create"
+          tabIndex={0}
+          aria-label="Add post"
+          style={{
+            marginLeft: 14,
+            fontSize: 15.5,
+            padding: "7px 18px",
+            background: "#FFD166",
+            color: "#234",
+            fontWeight: 800,
+            minWidth: 72,
+          }}
+          onClick={() => {
+            setFormOpen(true);
+            setEditingPostId(null);
+            resetForm();
+          }}
+        >
+          + Post
+        </button>
+      </h2>
+      <div style={{ display: "flex", gap: 14, marginBottom: 9, alignItems: "center" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+          <input
+            type="checkbox"
+            checked={showHighOnly}
+            onChange={e => setShowHighOnly(e.target.checked)}
+            style={{marginRight:5}}
+          />
+          High Importance Only
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+          <input
+            type="checkbox"
+            checked={showRemindersOnly}
+            onChange={e => setShowRemindersOnly(e.target.checked)}
+            style={{marginRight:5}}
+          />
+          Reminders Only
+        </label>
+        <span style={{ marginLeft: 17, color: "#a2a", fontWeight: 600, fontSize: 13.3 }}>
+          {sortedPosts.length} post{sortedPosts.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+      {formOpen && (
+        <div
+          aria-modal="true"
+          role="dialog"
+          style={{
+            background: "#f8fbff",
+            border: "2.2px solid #FFD166",
+            boxShadow: "0 4px 28px 0 rgba(120,144,220,0.06)",
+            borderRadius: 19,
+            padding: "24px 18px 14px 18px",
+            marginBottom: 22,
+            marginTop: 4,
+            position: "relative",
+            maxWidth: 470,
+          }}
+        >
+          <form onSubmit={handlePostSubmit}>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontWeight: 700, color: "#234", display: "block", marginBottom: 4 }}>Title</label>
+              <input
+                className="white-input"
+                required
+                maxLength={48}
+                value={formTitle}
+                onChange={e => setFormTitle(e.target.value)}
+                autoFocus
+                style={{ width: "100%", marginBottom: 7 }}
+                placeholder="What’s the announcement about?"
+              />
+            </div>
+            <div style={{ marginBottom: 9 }}>
+              <label style={{ fontWeight: 700, color: "#234", display: "block", marginBottom: 4 }}>Details</label>
+              <textarea
+                className="white-input"
+                required
+                maxLength={280}
+                value={formContent}
+                onChange={e => setFormContent(e.target.value)}
+                style={{
+                  width: "100%", minHeight: 56, fontSize: 15.7, fontFamily: "inherit",
+                  fontWeight: 600, marginBottom: 7, resize: "vertical"
+                }}
+                placeholder="Announcement text…"
+              />
+            </div>
+            <div style={{ display: "flex", gap: 13, alignItems: "center", marginBottom: 10 }}>
+              <label style={{ fontWeight: 700, color: "#297" }}>Importance:</label>
+              <select
+                value={formImportance}
+                onChange={e => setFormImportance(e.target.value)}
+                className="white-input"
+                style={{ width: 110, fontWeight: 700, color: getImportanceStyle(formImportance).color }}
+              >
+                <option value="high">High ⚠️</option>
+                <option value="average">Average 🔔</option>
+                <option value="low">Low 📝</option>
+              </select>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 13, marginTop: -5 }}>
+              <label style={{ fontWeight: 700, color: "#297", minWidth: 84 }}>Reminder:</label>
+              <input
+                className="white-input"
+                type="datetime-local"
+                value={formReminder}
+                onChange={e => setFormReminder(e.target.value)}
+                style={{ width: 178, fontWeight: 600, color: "#125" }}
+                min={new Date(Date.now() - 60000).toISOString().slice(0, 16)}
+              />
+              <span style={{ fontSize: 14.5, color: "#b99", marginLeft: 5 }}>(optional)</span>
+            </div>
+            <div style={{ display: "flex", gap: 13, marginTop: 10 }}>
+              <button
+                className="main-action-btn main-action-btn-create"
+                type="submit"
+                style={{ flex: 1, fontWeight: 800 }}
+              >
+                {editingPostId ? "Update" : "Post"}
+              </button>
+              <button
+                className="main-action-btn"
+                type="button"
+                style={{
+                  background: "#F5F8FA",
+                  color: "#954",
+                  border: "2px solid #e6ecf5",
+                  fontWeight: 800,
+                  flex: 1,
+                }}
+                onClick={() => {
+                  setFormOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+      <div style={{
+        marginTop: 2,
+        marginBottom: 7,
+        minHeight: 165,
+        background: "#fafcff",
+        borderRadius: 13,
+        border: "1.6px solid #97acd8",
+        padding: "13px 8px 7px 8px",
+        boxShadow: "0 1.5px 8px 0 rgba(90,140,210,0.03)",
+      }}>
+        {sortedPosts.length === 0 ? (
+          <div style={{
+            color: "#b8a", fontWeight: 600, fontSize: 15.5,
+            textAlign: "center", padding: 25, opacity: 0.83
+          }}>
+            No posts yet. Announcements or reminders for the classroom will appear here!
+          </div>
+        ) : (
+            <ul className="bulletin-post-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {sortedPosts.map(post => {
+                const mine = post.authorCode === userCode;
+                const important = post.importance === "high";
+                const reminderDue = post.reminder && new Date(post.reminder).getTime() > Date.now() - 900000;
+                const highlight = shouldHighlight(post);
+                const impStyle = getImportanceStyle(post.importance);
+                return (
+                  <li
+                    key={post.id}
+                    className="bulletin-post-item"
+                    style={{
+                      background: highlight ? impStyle.bg : "#fff",
+                      border: highlight ? `2.1px solid ${impStyle.border}` : "2px solid #eef2fb",
+                      boxShadow: important
+                        ? "0 4px 18px 0 rgba(230,63,53,0.08)"
+                        : "0 2.5px 8px 0 rgba(150,150,200,0.06)",
+                      borderRadius: 15,
+                      marginBottom: 13,
+                      position: "relative",
+                      transition: "background 0.14s, border .13s",
+                      minWidth: 0,
+                      minHeight: 0,
+                      width: "100%",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere"
+                    }}
+                  >
+                    <div
+                      className="bulletin-post-header"
+                      style={{
+                        color: impStyle.color,
+                        marginBottom: 2
+                      }}
+                    >
+                      <span style={{ flexShrink: 0 }}>
+                        {importanceIcons[post.importance]}
+                      </span>
+                      <span className="bulletin-post-title">
+                        {post.title}
+                      </span>
+                      {important &&
+                        <span className="bulletin-post-label bulletin-post-highlabel"
+                          style={{
+                            background: "#d14",
+                            color: "#fff"
+                          }}>
+                          HIGH
+                        </span>
+                      }
+                      {reminderDue && (
+                        <span
+                          className="bulletin-post-label bulletin-post-reminderlabel"
+                          style={{
+                            background: "#44b",
+                            color: "#fff"
+                          }}
+                        >
+                          Reminder
+                        </span>
+                      )}
+                    </div>
+                    <div
+                      className="bulletin-post-content"
+                    >
+                      {post.content}
+                    </div>
+                    <div className="bulletin-post-meta" style={{ marginTop: 2 }}>
+                      <span>
+                        Posted by <span style={{ color: "#753", fontWeight: 800 }}>{post.author}</span>
+                      </span>
+                      <span style={{ color: "#a98", fontWeight: 700 }}>
+                        • {formatTs(post.timestamp)}
+                      </span>
+                      {post.reminder &&
+                        <span style={{ color: "#278", fontWeight: 700 }}>
+                          • Remind at {formatReminder(post.reminder)}
+                        </span>
+                      }
+                    </div>
+                    <div className="bulletin-post-actions">
+                      {mine && (
+                        <>
+                          <button
+                            aria-label="Edit"
+                            title="Edit post"
+                            onClick={() => handleEditPost(post)}
+                            style={{
+                              background: "#7E9CB2",
+                              color: "#fff",
+                              fontWeight: 800,
+                              padding: "2px 11px",
+                              fontSize: 15.5,
+                              borderRadius: 11,
+                              border: "none",
+                              marginRight: 2,
+                              opacity: 0.86, cursor: "pointer"
+                            }}
+                          >✏️</button>
+                          <button
+                            aria-label="Delete"
+                            title="Delete post"
+                            onClick={() => handleDeletePost(post.id)}
+                            style={{
+                              background: "#FFD166",
+                              color: "#B52",
+                              fontWeight: 900,
+                              padding: "2px 11px",
+                              fontSize: 15.5,
+                              borderRadius: 11,
+                              border: "none",
+                              opacity: 0.82, cursor: "pointer"
+                            }}
+                          >🗑️</button>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )
+        }
+      </div>
+    </div>
+  );
+}
+
+// CLASS NOTEBOOK (unchanged, reinserted for build)
+function ClassNotebook({ classroom, loggedInUser }) {
+  const notebookSessionKey = "notebookFiles";
+  const [fileList, setFileList] = React.useState(() => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      return all[classroom.code] || [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [uploading, setUploading] = React.useState(false);
+
+  const syncFromSession = () => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      setFileList(all[classroom.code] || []);
+    } catch {
+      setFileList([]);
+    }
+  };
+
+  function handleFileUpload(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setUploading(true);
+    const toSave = files.map(file => ({
+      id: `${file.name}-${file.size}-${file.lastModified}-${Date.now()}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      uploader: loggedInUser,
+      uploadedAt: Date.now(),
+      fileBlob: null,
+    }));
+
+    Promise.all(
+      toSave.map((f, idx) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          resolve({ ...f, fileBlob: ev.target.result });
+        };
+        reader.readAsDataURL(files[idx]);
+      }))
+    ).then((filesToAdd) => {
+      let all = {};
+      try {
+        all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      } catch {}
+      if (!all[classroom.code]) all[classroom.code] = [];
+      all[classroom.code] = [...filesToAdd, ...(all[classroom.code]||[])].slice(0, 40);
+      window.sessionStorage.setItem(notebookSessionKey, JSON.stringify(all));
+      setUploading(false);
+      syncFromSession();
+      e.target.value = "";
+    });
+  }
+
+  function handleFileDownload(file) {
+    const a = document.createElement('a');
+    a.href = file.fileBlob;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 120);
+  }
+
+  function handleFileRemove(fileId) {
+    let all = {};
+    try {
+      all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+    } catch {}
+    if (!all[classroom.code]) return;
+    all[classroom.code] = all[classroom.code].filter(f => f.id !== fileId);
+    window.sessionStorage.setItem(notebookSessionKey, JSON.stringify(all));
+    syncFromSession();
+  }
+
+  const ACCEPTED_TYPES = [
+    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".bmp", ".txt", ".md",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "image/*", "text/*"
+  ].join(",");
+
+  const sortedFiles = [...fileList].sort((a, b) => b.uploadedAt - a.uploadedAt);
+
+  return (
+    <div style={{ minHeight: 360, paddingBottom: 19  }}>
+      <h2 style={{
+        color: "#195989",
+        fontWeight: 800,
+        marginTop: 1,
+        marginBottom: 13,
+        fontSize: 22
+      }}>
+        <span role="img" aria-label="Notebook" style={{ marginRight: 7 }}>📚</span>
+        Notebook
+      </h2>
+      <div className="notebook-upload-box" style={{
+        background: "#fafcff",
+        border: "2px dashed #7E9CB2",
+        borderRadius: 19,
+        boxShadow: "0 2.5px 10px 0 rgba(105,160,200,0.05)",
+        padding: "25px 15px 18px 15px",
+        marginBottom: 20,
+        maxWidth: 420,
+        display: "flex",
+        gap: 13,
+        alignItems: "center",
+        flexWrap: "wrap"
+      }}>
+        <input
+          type="file"
+          id="notebookfile"
+          accept={ACCEPTED_TYPES}
+          style={{ display: "none" }}
+          multiple
+          onChange={handleFileUpload}
+          aria-label="Choose files to upload to notebook"
+          disabled={uploading}
+        />
+        <label htmlFor="notebookfile"
+          className="main-action-btn main-action-btn-create"
+          tabIndex={0}
+          style={{
+            minWidth: 89,
+            border: "2.2px solid #06D6A0",
+            background: uploading ? "#bbb" : "var(--accent, #06D6A0)",
+            color: "#013c26",
+            fontWeight: 800,
+            opacity: uploading ? 0.64 : 1,
+            cursor: uploading ? "not-allowed" : "pointer"
+          }}
+        >
+          <span role="img" aria-label="Upload" style={{ marginRight: 7 }}>⬆️</span>
+          {uploading ? "Uploading..." : "Upload File(s)"}
+        </label>
+        <div style={{
+          color: "#487",
+          fontWeight: 600,
+          fontSize: 14.5
+        }}>
+          Attach notes, slides, handouts or assignments (PDF, DOCX, images, etc.)
+        </div>
+      </div>
+      {sortedFiles.length === 0 ? (
+        <div style={{
+          margin: "30px 0",
+          padding: "21px 10px",
+          background: "#f6fafd",
+          borderRadius: 11,
+          color: "#aac",
+          fontWeight: 600,
+          fontSize: 16.5,
+          textAlign: "center"
+        }}>
+          No files uploaded yet.<br />All files are public and visible only to class members.
+        </div>
+      ) : (
+        <div style={{
+          margin: "10px 0 13px 0",
+          overflowX: "auto",
+          borderRadius: 13,
+          background: "#fafdff",
+          border: "1.5px solid #97acd8"
+        }}>
+          <table className="notebook-files-table" style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 16,
+            color: "#233",
+            minWidth: 340
+          }}>
+            <thead style={{ background: "#edfbf9" }}>
+              <tr>
+                <th style={{ textAlign: "left", padding: "11px 7px 10px 12px", fontWeight: 800 }}>File Name</th>
+                <th style={{ textAlign: "left", padding: "11px 9px", fontWeight: 800 }}>Uploader</th>
+                <th style={{ textAlign: "left", padding: "11px 8px", fontWeight: 800 }}>Uploaded</th>
+                <th style={{ textAlign: "center", padding: "11px 8px", fontWeight: 800 }}>Download</th>
+                <th style={{ textAlign: "center", padding: "11px 8px", fontWeight: 800 }}>Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedFiles.map(f => (
+                <tr key={f.id} style={{
+                  background: "#fff",
+                  borderBottom: "1.5px solid #f1f4fb"
+                }}>
+                  <td style={{ padding: "9px 7px", fontWeight: 700, wordBreak: "break-word" }}>
+                    <span style={{ color: "#117c9a" }}>{f.name}</span>
+                  </td>
+                  <td style={{ padding: "8px 7px", fontSize: 15 }}>
+                    {f.uploader}
+                  </td>
+                  <td style={{ padding: "8px 7px", color: "#985", fontSize: 14, minWidth: 90 }}>
+                    {new Date(f.uploadedAt).toLocaleString([], {
+                      month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+                    })}
+                  </td>
+                  <td style={{ padding: "8px 7px", textAlign: "center" }}>
+                    <button
+                      aria-label={`Download ${f.name}`}
+                      title="Download"
+                      className="main-action-btn"
+                      style={{
+                        background: "#7E9CB2",
+                        color: "#fff",
+                        fontWeight: 900,
+                        padding: "3px 14px",
+                        fontSize: 15.5,
+                        borderRadius: 14,
+                        border: "none"
+                      }}
+                      onClick={() => handleFileDownload(f)}
+                    >
+                      ⬇️
+                    </button>
+                  </td>
+                  <td style={{ padding: "8px 7px", textAlign: "center" }}>
+                    {f.uploader === loggedInUser ? (
+                      <button
+                        aria-label={`Remove ${f.name}`}
+                        title="Remove"
+                        className="main-action-btn"
+                        style={{
+                          background: "#FFD166",
+                          color: "#A33",
+                          fontWeight: 900,
+                          padding: "3px 14px",
+                          fontSize: 15.5,
+                          borderRadius: 14,
+                          border: "none"
+                        }}
+                        onClick={() => handleFileRemove(f.id)}
+                      >
+                        🗑️
+                      </button>
+                    ) : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default App;
