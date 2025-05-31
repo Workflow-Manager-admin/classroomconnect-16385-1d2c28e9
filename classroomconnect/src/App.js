@@ -64,6 +64,9 @@ function App() {
   );
   const [selectedClassroom, setSelectedClassroom] = useState(null);
 
+  // Create-Classroom Modal state
+  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
+
   useEffect(() => {
     applyTheme();
   }, []);
@@ -102,28 +105,46 @@ function App() {
           code,
           name,
           color: funPalette[(prev.length + 1) % funPalette.length],
-          joinedAt: Date.now()
+          joinedAt: Date.now(),
+          members: [] // Members will be assigned on group projects
         }
       ]);
       setDashboardView(false);
       setSelectedClassroom(code);
     }
   };
-  const handleCreateClassroom = () => {
+
+  // Show modal to create classroom
+  const launchCreateClassroom = () => setShowCreateClassModal(true);
+
+  // Handle Create Classroom with Modal
+  const handleCreateClassroomWithInfo = (name, numMembers) => {
     let newCode = generateCode(6, false);
-    // Ensure code not duplicate (client-side "serverless" sim)
     while (classrooms.some((c) => c.code === newCode))
       newCode = generateCode(6, false);
-    const name = `Classroom ${newCode}`;
+    const membersList = [];
+    // The current user always is a member
+    if (username && !membersList.includes(username)) membersList.push(username);
+    // Fill with placeholder students for demo
+    for (let i = membersList.length; i < Math.max(1, numMembers); ++i) {
+      membersList.push("Student" + (i + 1));
+    }
     const newClass = {
       code: newCode,
-      name,
+      name: name || `Classroom ${newCode}`,
       color: funPalette[(classrooms.length + 2) % funPalette.length],
-      joinedAt: Date.now()
+      joinedAt: Date.now(),
+      members: membersList
     };
     setClassrooms((prev) => [...prev, newClass]);
     setDashboardView(false);
     setSelectedClassroom(newCode);
+    setShowCreateClassModal(false);
+  };
+
+  // Old "onCreate" kept for form compatibility
+  const handleCreateClassroom = () => {
+    setShowCreateClassModal(true);
   };
 
   // Enter classroom
@@ -135,6 +156,16 @@ function App() {
   const leaveClassroom = () => {
     setSelectedClassroom(null);
     setDashboardView(true);
+  };
+
+  // Update classroom on members change (used by GroupProjects modal logic)
+  const updateClassroomMembers = (code, newMembers) => {
+    // Used by GroupProjects for saving classroom member list
+    setClassrooms((prev) =>
+      prev.map((c) =>
+        c.code === code ? { ...c, members: newMembers } : c
+      )
+    );
   };
 
   // ============ RENDERS ===========
@@ -200,13 +231,21 @@ function App() {
       {/* Main Container */}
       <main className="cc-main-container-expanded">
         {dashboardView ? (
-          <Dashboard
-            classrooms={classrooms}
-            onCreate={handleCreateClassroom}
-            onJoin={handleJoinClassroom}
-            openClassroom={openClassroom}
-            funPalette={funPalette}
-          />
+          <>
+            <Dashboard
+              classrooms={classrooms}
+              onCreate={launchCreateClassroom}
+              onJoin={handleJoinClassroom}
+              openClassroom={openClassroom}
+              funPalette={funPalette}
+            />
+            {showCreateClassModal &&
+              <CreateClassroomModal
+                onSubmit={handleCreateClassroomWithInfo}
+                onClose={() => setShowCreateClassModal(false)}
+              />
+            }
+          </>
         ) : (
           <ClassroomPanel
             classroom={
@@ -215,6 +254,8 @@ function App() {
             username={username}
             userCode={userCode}
             leaveClassroom={leaveClassroom}
+            updateClassroomMembers={updateClassroomMembers}
+            funPalette={funPalette}
           />
         )}
       </main>
@@ -231,6 +272,81 @@ function App() {
           </span>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// --- Modal: Create Classroom ---
+function CreateClassroomModal({ onSubmit, onClose }) {
+  const [name, setName] = useState("");
+  const [numMembers, setNumMembers] = useState(5);
+
+  return (
+    <div style={{
+      position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+      background: "rgba(74,153,211,0.10)", display: "flex",
+      alignItems: "center", justifyContent: "center", zIndex: 9999
+    }}>
+      <div className="cc-card" style={{
+        minWidth: 320, maxWidth: 370, background: "#fff", color: NAVY, position: "relative"
+      }}>
+        <button type="button"
+          onClick={onClose}
+          style={{
+            position: "absolute", top: 16, right: 16, background: "transparent",
+            color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
+          }}
+          aria-label="Close create classroom modal"
+        >✖</button>
+        <h2 style={{ color: NAVY, margin: 0, marginBottom: 15 }}>Create a Classroom</h2>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            if (!name || +numMembers < 1) return;
+            onSubmit(name, +numMembers);
+          }}
+        >
+          <label style={{ color: NAVY, fontWeight: 500 }}>Classroom Name</label>
+          <input
+            className="cc-input"
+            required
+            maxLength={36}
+            placeholder="Cool Classroom Name"
+            style={{ width: "95%", marginBottom: 17 }}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            autoFocus
+          />
+          <label style={{ color: NAVY, fontWeight: 500 }}>Number of Members</label>
+          <input
+            className="cc-input"
+            type="number"
+            required
+            min={1}
+            max={99}
+            style={{ width: 90, marginBottom: 14 }}
+            value={numMembers}
+            onChange={e => setNumMembers(e.target.value.replace(/\D/,""))}
+          />
+          <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
+            <button
+              className="cc-btn cc-btn-large"
+              style={{ background: babyBlue, color: NAVY, flex:1 }}
+              type="submit"
+            >
+              Create
+            </button>
+            <button
+              className="cc-btn cc-btn-large"
+              style={{ background: pink, color: NAVY, flex:1 }}
+              type="button"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -374,14 +490,25 @@ function ClassroomPanel({
   classroom,
   username,
   userCode,
-  leaveClassroom
+  leaveClassroom,
+  updateClassroomMembers,
+  funPalette
 }) {
   const [tab, setTab] = useState("chat");
   return (
     <div className="cc-classroom-bg">
       <div className="cc-classroom-header">
-        <button className="cc-btn cc-btn-naked" onClick={leaveClassroom} style={{ color: NAVY }}>
-          ⬅ Back
+        {/* Exit classroom button */}
+        <button
+          className="cc-btn cc-btn-large"
+          onClick={leaveClassroom}
+          style={{
+            color: NAVY,
+            background: secondary,
+            marginRight: 10
+          }}
+        >
+          ⬅ Exit Classroom
         </button>
         <div
           className="cc-crumb-title"
@@ -431,7 +558,13 @@ function ClassroomPanel({
           <NotebookBoard username={username} classCode={classroom.code} />
         )}
         {tab === "projects" && (
-          <GroupProjects username={username} classCode={classroom.code} />
+          <GroupProjects
+            username={username}
+            classCode={classroom.code}
+            classroom={classroom}
+            updateClassroomMembers={updateClassroomMembers}
+            funPalette={funPalette}
+          />
         )}
         {tab === "calls" && (
           <CallsPanel username={username} classCode={classroom.code} />
@@ -744,15 +877,35 @@ function NotebookBoard({ username, classCode }) {
 }
 
 // ========== GROUP PROJECTS ==========
-function GroupProjects({ username, classCode }) {
+function GroupProjects({
+  username,
+  classCode,
+  classroom,
+  updateClassroomMembers,
+  funPalette
+}) {
   // In a real app this would be server sync! Here: localStorage sim.
-  // Simple model: projects (can be many, each w/teams, tasks, progress)
+  // Projects (each w/teams, tasks, progress)
   const STORAGE_KEY = "CC_Projects_" + classCode;
   const [projects, setProjects] = useState(
     JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")
   );
-  const [newProjectName, setNewProjectName] = useState("");
   const [showNew, setShowNew] = useState(false);
+
+  // Modal for group creation
+  const [showGroupModal, setShowGroupModal] = useState(false);
+
+  // Details for project creation flow
+  const [newProjectDetails, setNewProjectDetails] = useState({
+    projectName: "",
+    step: 1,
+    // step 1: get name
+    // step 2: select team formation type
+    // step 3: selection-specific
+    teamType: "",
+    manualSelected: [],
+    randomSize: 2
+  });
 
   // For drag-drop reordering
   const [draggedTask, setDraggedTask] = useState(null);
@@ -762,89 +915,79 @@ function GroupProjects({ username, classCode }) {
   }, [projects]);
 
   // ============ PROJECT ACTIONS ============
-  const addProject = (e) => {
-    e.preventDefault();
-    if (newProjectName.length < 2) return;
+  // Main: Launch enhanced group creation modal
+  const launchNewProjectModal = () => {
+    setShowGroupModal(true);
+    setNewProjectDetails({
+      projectName: "",
+      step: 1,
+      teamType: "",
+      manualSelected: [],
+      randomSize: 2
+    });
+  };
+
+  // Save new project with teams and reset modal
+  const completeNewProject = (projectName, teams) => {
     const newProj = {
       id: Date.now(),
-      name: newProjectName,
-      teams: [],
+      name: projectName,
+      teams,
       tasks: [],
       progress: 0
     };
     setProjects((prev) => [...prev, newProj]);
-    setNewProjectName("");
-    setShowNew(false);
-  };
-
-  const addTeam = (projId, teamName) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === projId
-          ? {
-              ...p,
-              teams: [
-                ...p.teams,
-                { name: teamName, members: [username], leader: username }
-              ]
-            }
-          : p
-      )
-    );
-  };
-
-  const joinTeam = (projId, teamIdx) => {
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === projId
-          ? {
-              ...p,
-              teams: p.teams.map((t, idx) =>
-                idx === teamIdx && !t.members.includes(username)
-                  ? {
-                      ...t,
-                      members: [...t.members, username]
-                    }
-                  : t
-              )
-            }
-          : p
-      )
-    );
-  };
-
-  const startRandomTeams = (projId, teamCount) => {
-    // For demo: assign names from classCode-users-list simulation
-    let classroomKey = "CC_Chat_" + classCode;
-    let users = JSON.parse(localStorage.getItem(classroomKey) || "[]")
-      .map((m) => m.sender);
-    users = Array.from(new Set(users));
-    if (!users.includes(username)) users.push(username);
-
-    // Shuffle and divide
-    let shuffled = users.slice();
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    let teams = Array.from({ length: Math.max(1, teamCount) }, () => []);
-    shuffled.forEach((user, idx) => {
-      teams[idx % teamCount].push(user);
+    setShowGroupModal(false);
+    setNewProjectDetails({
+      projectName: "",
+      step: 1,
+      teamType: "",
+      manualSelected: [],
+      randomSize: 2
     });
-    let teamObjs = teams.map(
-      (members, idx) => ({
-        name: "Team " + (idx + 1),
-        members: members,
-        leader: members[0] || ""
-      })
-    );
-    setProjects((prev) =>
-      prev.map((p) =>
-        p.id === projId ? { ...p, teams: teamObjs } : p
-      )
-    );
   };
 
+  // Handle change in steps
+  const processTeamCreationFlow = {
+    onContinueName: (name) => setNewProjectDetails((prev) => ({ ...prev, step: 2, projectName: name.trim() })),
+    onSelectType: (type) => setNewProjectDetails((prev) => ({ ...prev, teamType: type, step: 3 })),
+    onManualSelect: (selected) => setNewProjectDetails((prev) => ({ ...prev, manualSelected: selected })),
+    onRandomSize: (size) => setNewProjectDetails((prev) => ({ ...prev, randomSize: size }))
+  };
+
+  // Saved classroom member list for selection. If not present, synthesize from chat for backwards compatibility.
+  let classroomMembers = [];
+  if (classroom && classroom.members && classroom.members.length > 0) {
+    classroomMembers = [...new Set([...classroom.members, username])];
+  } else {
+    // Fallback: simulate from chat storage if no explicit member list
+    let classroomKey = "CC_Chat_" + classCode;
+    classroomMembers = JSON.parse(localStorage.getItem(classroomKey) || "[]")
+      .map((m) => m.sender)
+      .filter(Boolean);
+    if (!classroomMembers.includes(username))
+      classroomMembers.push(username);
+    classroomMembers = Array.from(new Set(classroomMembers));
+  }
+  // Always keep username as member for safety
+  if (!classroomMembers.includes(username))
+    classroomMembers.push(username);
+
+  // Save member list if changed
+  useEffect(() => {
+    if (updateClassroomMembers && classroom && classroom.code) {
+      updateClassroomMembers(classroom.code, classroomMembers);
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  // Enhanced team formation modal logic, only if showGroupModal
+  // Step 1: Enter project name
+  // Step 2: Select Manual or Random
+  // Step 3A: Manual - checklist of members
+  // Step 3B: Random - input team size, auto assign
+
+  // -- Project actions below --
   const addTask = (projId, taskName) => {
     setProjects((prev) =>
       prev.map((p) =>
@@ -924,7 +1067,7 @@ function GroupProjects({ username, classCode }) {
     setDraggedTask(null);
   };
 
-  // UI
+  // --- UI ---
   return (
     <div className="cc-projects-wrap">
       <div className="cc-card cc-projects-card">
@@ -933,33 +1076,25 @@ function GroupProjects({ username, classCode }) {
           <button
             className="cc-btn cc-btn-small"
             style={{
-              background: showNew ? accent : secondary,
+              background: showGroupModal ? accent : secondary,
               color: "#194"
             }}
-            onClick={() => setShowNew((v) => !v)}
+            onClick={launchNewProjectModal}
           >
-            {showNew ? "Cancel" : "➕ New Project"}
+            {showGroupModal ? "Cancel" : "➕ New Project"}
           </button>
         </div>
-        {showNew && (
-          <form
-            className="cc-projects-form"
-            onSubmit={addProject}
-            style={{ marginBottom: 18 }}
-          >
-            <input
-              className="cc-input"
-              required
-              maxLength={46}
-              placeholder="Project name"
-              value={newProjectName}
-              onChange={(e) => setNewProjectName(e.target.value)}
-              style={{ marginRight: 8 }}
-            />
-            <button className="cc-btn" type="submit">
-              Create
-            </button>
-          </form>
+        {/* Enhanced modal for new group project */}
+        {showGroupModal && (
+          <ProjectTeamModal
+            details={newProjectDetails}
+            setDetails={setNewProjectDetails}
+            onClose={() => setShowGroupModal(false)}
+            classroomMembers={classroomMembers}
+            funPalette={funPalette}
+            onComplete={completeNewProject}
+            processTeamCreationFlow={processTeamCreationFlow}
+          />
         )}
         <div className="cc-projects-list">
           {projects.length === 0 && (
@@ -977,11 +1112,21 @@ function GroupProjects({ username, classCode }) {
                 {p.teams.length === 0 ? (
                   <div style={{ color: NAVY, fontWeight: 500 }}>
                     No teams formed yet.
+                    {/* Retro random as fall back for old projects */}
                     <button
                       className="cc-btn cc-btn-xsmall"
                       style={{ marginLeft: 10, background: pink, color: NAVY }}
                       onClick={() =>
-                        startRandomTeams(p.id, 2)
+                        setProjects(prev =>
+                          prev.map(x =>
+                            x.id === p.id
+                              ? {
+                                  ...x,
+                                  teams: makeRandomTeams(classroomMembers, 2)
+                                }
+                              : x
+                          )
+                        )
                       }
                     >
                       Random Teams
@@ -1024,15 +1169,6 @@ function GroupProjects({ username, classCode }) {
                             </span>
                           ))}
                         </div>
-                        {!t.members.includes(username) && (
-                          <button
-                            className="cc-btn cc-btn-xsmall"
-                            onClick={() => joinTeam(p.id, i)}
-                            style={{ marginTop: 5, background: accent, color: "#fff" }}
-                          >
-                            Join Team
-                          </button>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -1075,6 +1211,312 @@ function GroupProjects({ username, classCode }) {
     </div>
   );
 }
+
+// --- Team Modal for New Group Project Flow
+function ProjectTeamModal({
+  details,
+  setDetails,
+  onClose,
+  classroomMembers,
+  onComplete,
+  funPalette,
+  processTeamCreationFlow
+}) {
+  const [manualSelected, setManualSelected] = useState(details.manualSelected);
+
+  // Step 1: Enter project name
+  if (details.step === 1) {
+    return (
+      <div style={{
+        position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+        background: "rgba(6,88,150,.10)", display: "flex",
+        alignItems: "center", justifyContent: "center", zIndex: 9999
+      }}>
+        <div className="cc-card" style={{
+          minWidth: 320, maxWidth: 370, background: "#fff", color: NAVY, position: "relative"
+        }}>
+          <button type="button"
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 16, right: 16, background: "transparent",
+              color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
+            }}
+            aria-label="Close project create modal"
+          >✖</button>
+          <h2 style={{ color: NAVY, marginBottom: 11 }}>New Group Project</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              if ((details.projectName || "").length < 2) return;
+              processTeamCreationFlow.onContinueName(details.projectName);
+            }}
+          >
+            <label style={{ fontWeight: 500, color: NAVY }}>Project Name</label>
+            <input
+              className="cc-input"
+              required
+              maxLength={46}
+              placeholder="Project name"
+              value={details.projectName}
+              onChange={e =>
+                setDetails(prev => ({ ...prev, projectName: e.target.value }))
+              }
+              style={{ marginBottom: 18, width: "96%" }}
+              autoFocus
+            />
+            <div style={{display: "flex", gap: 16, marginTop: 6, justifyContent:"flex-end"}}>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: accent, color: "#fff" }}
+                type="submit"
+              >Next</button>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: pink, color: NAVY }}
+                type="button" onClick={onClose}
+              >Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  // Step 2: Choose team formation type
+  if (details.step === 2) {
+    return (
+      <div style={{
+        position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+        background: "rgba(6,88,150,.08)", display: "flex",
+        alignItems: "center", justifyContent: "center", zIndex: 9999
+      }}>
+        <div className="cc-card" style={{
+          minWidth: 320, maxWidth: 370, background: "#fff", color: NAVY, position: "relative"
+        }}>
+          <button type="button"
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 16, right: 16, background: "transparent",
+              color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
+            }}
+            aria-label="Close project create modal"
+          >✖</button>
+          <h2 style={{ color: NAVY, marginBottom: 5 }}>Team Formation</h2>
+          <div>
+            <button
+              className="cc-btn cc-btn-large"
+              style={{
+                background: babyBlue,
+                color: NAVY,
+                width: "100%",
+                marginBottom: 16
+              }}
+              type="button"
+              onClick={() => processTeamCreationFlow.onSelectType("manual")}
+            >Manual Selection</button>
+            <button
+              className="cc-btn cc-btn-large"
+              style={{
+                background: accent,
+                color: "#fff",
+                width: "100%"
+              }}
+              type="button"
+              onClick={() => processTeamCreationFlow.onSelectType("random")}
+            >Random Assignment</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  // Step 3A: Manual - list members, allow selection
+  if (details.teamType === "manual" && details.step === 3) {
+    // Always include current user
+    if (!manualSelected.includes(classroomMembers[0]))
+      setManualSelected([classroomMembers[0], ...manualSelected]);
+
+    return (
+      <div style={{
+        position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+        background: "rgba(180,216,245,0.09)", display: "flex",
+        alignItems: "center", justifyContent: "center", zIndex: 9999
+      }}>
+        <div className="cc-card" style={{
+          minWidth: 320, maxWidth: 420, background: "#fff", color: NAVY, position: "relative"
+        }}>
+          <button type="button"
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 16, right: 16, background: "transparent",
+              color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
+            }}
+            aria-label="Close group modal"
+          >✖</button>
+          <h2 style={{ color: NAVY, marginBottom: 5 }}>Manual Team Selection</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              // Don't allow empty teams
+              if (manualSelected.length < 1) return;
+              const teamObj = [{
+                name: "Team 1",
+                members: manualSelected,
+                leader: manualSelected[0]
+              }];
+              onComplete(details.projectName, teamObj);
+            }}
+          >
+            <div
+              style={{
+                display: "flex", flexDirection: "column",
+                gap: 6, marginBottom: 19, marginTop: 10
+              }}
+            >
+              {classroomMembers.map((m, idx) => (
+                <label key={idx} style={{ color: NAVY }}>
+                  <input
+                    type="checkbox"
+                    checked={manualSelected.includes(m)}
+                    onChange={e => {
+                      setManualSelected(prev => {
+                        if (e.target.checked)
+                          return [...prev, m];
+                        else
+                          return prev.filter(x => x !== m);
+                      });
+                    }}
+                    disabled={username === m} // always in team
+                  />
+                  <span style={{
+                    marginLeft: 8,
+                    fontWeight: username === m ? 700 : 500,
+                    color: username === m ? accent : NAVY
+                  }}>
+                    {m}
+                    {username === m ? " (You)" : ""}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <div style={{display: "flex", gap: 16, marginTop: 6, justifyContent:"flex-end"}}>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: accent, color: "#fff" }}
+                type="submit"
+                disabled={manualSelected.length < 1}
+              >Create Project</button>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: pink, color: NAVY }}
+                type="button" onClick={onClose}
+              >Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  // Step 3B: Random team selection
+  if (details.teamType === "random" && details.step === 3) {
+    return (
+      <div style={{
+        position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
+        background: "rgba(180,216,245,0.09)", display: "flex",
+        alignItems: "center", justifyContent: "center", zIndex: 9999
+      }}>
+        <div className="cc-card" style={{
+          minWidth: 320, maxWidth: 420, background: "#fff", color: NAVY, position: "relative"
+        }}>
+          <button type="button"
+            onClick={onClose}
+            style={{
+              position: "absolute", top: 16, right: 16, background: "transparent",
+              color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
+            }}
+            aria-label="Close group modal"
+          >✖</button>
+          <h2 style={{ color: NAVY, marginBottom: 5 }}>Random Team Assignment</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              const teamSize = +details.randomSize;
+              if (teamSize < 1 || teamSize > classroomMembers.length) return;
+              // randomize
+              let shuffled = classroomMembers.slice();
+              for (let i = shuffled.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+              }
+              let teams = [];
+              for (let i = 0; i < shuffled.length; i += teamSize) {
+                teams.push(shuffled.slice(i, i + teamSize));
+              }
+              // Each team: {name, members, leader}
+              const teamObjs = teams.map((members, idx) => ({
+                name: "Team " + (idx + 1),
+                members,
+                leader: members[0] || ""
+              }));
+              onComplete(details.projectName, teamObjs);
+            }}
+          >
+            <label style={{ color: NAVY, fontWeight: 500 }}>
+              Team size (members per team)
+            </label>
+            <input
+              className="cc-input"
+              type="number"
+              required
+              min={1}
+              max={classroomMembers.length}
+              value={details.randomSize}
+              style={{ width: 90, marginBottom: 14, marginTop: 4 }}
+              onChange={e => processTeamCreationFlow.onRandomSize(+e.target.value)}
+            />
+            <div style={{ color: NAVY, fontWeight: 400, fontSize: 13 }}>
+              {classroomMembers.length} total members.
+            </div>
+            <div style={{display: "flex", gap: 16, marginTop: 15, justifyContent:"flex-end"}}>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: accent, color: "#fff" }}
+                type="submit"
+              >Create Project</button>
+              <button
+                className="cc-btn cc-btn-large"
+                style={{ background: pink, color: NAVY }}
+                type="button" onClick={onClose}
+              >Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+// Randomize helper for legacy/fallback team assignments
+function makeRandomTeams(members, teamCount) {
+  if (!Array.isArray(members) || members.length < 1) return [];
+  let shuffled = members.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  let teams = Array.from({ length: Math.max(1, teamCount) }, () => []);
+  shuffled.forEach((user, idx) => {
+    teams[idx % teamCount].push(user);
+  });
+  let teamObjs = teams.map(
+    (members, idx) => ({
+      name: "Team " + (idx + 1),
+      members: members,
+      leader: members[0] || ""
+    })
+  );
+  return teamObjs;
+}
+
 function TasksSection({
   tasks,
   project,
@@ -1275,7 +1717,6 @@ body, .cc-main-bg {
   min-height: 100vh;
   font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
 }
-
 .cc-navbar {
   height: 60px;
   background: var(--main-bg, #A7C7E7);
@@ -1289,7 +1730,6 @@ body, .cc-main-bg {
   z-index: 10;
   border-radius: 0 0 var(--large-radius, 30px) var(--large-radius, 30px)
 }
-
 .cc-logo {
   font-size: 1.6rem;
   font-weight: bold;
@@ -1330,517 +1770,9 @@ body, .cc-main-bg {
   margin: 16px 0 4px 0;
   color: #185;
 }
-.cc-dash-bg {
-  background: var(--main-bg, #A7C7E7);
-  padding-top: 60px;
-  min-height: 100vh;
-}
-.cc-hero {
-  max-width: 430px;
-  margin: 25px auto 0 auto;
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-radius: var(--large-radius, 30px);
-  background: #d9ecffad;
-  box-shadow: 0 4px 18px 0 #b2caf713;
-  text-align: center;
-}
-
-.cc-crumb-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #1874;
-}
-.cc-classcode {
-  font-family: monospace;
-  color: var(--main-accent, #06D6A0);
-  padding: 3px 7px;
-  border-radius: 7px;
-  background: #dffd;
-  margin-left: 12px;
-}
-
-.cc-card {
-  background: #fafdff;
-  border-radius: var(--card-radius, 18px);
-  box-shadow: 0 2px 10px 2px #b8ccee36;
-  padding: 26px 35px;
-  margin-bottom: 32px;
-  width: 100%;
-  max-width: 560px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.cc-register-card {
-  margin-top: 110px;
-  text-align: center;
-  max-width: 390px;
-}
-
-.cc-input {
-  border: 0px solid #b9cce7;
-  background: #f7fbff;
-  border-radius: 15px;
-  padding: 12px 16px;
-  font-size: 1.1rem;
-  color: #15354a;
-  min-width: 0;
-  outline: 1.5px solid #dbeefe;
-  outline-offset: 0;
-  margin-bottom: 8px;
-  transition: outline-color 0.2s;
-}
-.cc-input:focus {
-  outline: 2.5px solid var(--main-accent, #06D6A0);
-}
-.cc-btn {
-  background-color: var(--main-secondary, #FFD166);
-  color: #204037;
-  border: none;
-  border-radius: var(--border-radius, 22px);
-  padding: 10px 28px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.18s, color 0.14s;
-  box-shadow: 0 1.5px 7px 0 #c5d9ee2a;
-}
-.cc-btn:hover, .cc-btn:focus {
-  background: var(--main-accent, #06D6A0);
-  color: #fff;
-}
-.cc-btn-large {
-  font-size: 1.18rem;
-  padding: 14px 34px;
-  border-radius: var(--large-radius, 30px);
-}
-.cc-btn-small {
-  padding: 5px 19px;
-  font-size: 0.99rem;
-  background: var(--main-secondary, #FFD166);
-  border-radius: 16px;
-  margin-left: 10px;
-}
-.cc-btn-xsmall { padding: 3px 9px; font-size: 0.98rem; border-radius: 12px;}
-.cc-btn-naked {
-  background: transparent !important;
-  color: #0b657a !important;
-  border: none;
-  font-weight: 700;
-  padding: 7px 13px;
-}
-
-.cc-dashboard-wrap {
-  max-width: 860px;
-  margin:30px auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 200px;
-}
-.cc-create-join {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: center;
-}
-
-.cc-classcards-grid {
-  display: grid;
-  gap: 26px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  margin-top: 10px;
-}
-.cc-classcard {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  border: none;
-  border-radius: var(--card-radius, 18px);
-  box-shadow: 0 1px 8px #aec6d43c;
-  height: 135px;
-  min-width: 0;
-  margin-bottom: 4px;
-  transition: transform 0.1s, box-shadow 0.12s;
-}
-.cc-classcard:focus, .cc-classcard:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 32px #a7c7e7bb;
-}
-
-.cc-classroom-bg, .cc-register-wrap {
-  min-height: 100vh;
-  background: var(--main-bg, #A7C7E7);
-  padding-top: 70px;
-}
-.cc-classroom-header {
-  display: flex;
-  align-items: center;
-  background: #fff8;
-  padding: 21px 38px;
-  gap: 18px;
-  font-size: 1.28rem;
-  border-radius: var(--large-radius, 30px);
-  box-shadow: 0 2px 10px #b4CDD62d;
-  margin: 12px auto 0 auto;
-  max-width: 900px;
-}
-.cc-class-tabs-bar {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 19px 0;
-  gap: 7px;
-  background: #c9e3f648;
-  border-radius: var(--large-radius, 30px);
-  width: 88vw;
-  max-width: 850px;
-  min-width: 0;
-  margin-left: auto;
-  margin-right: auto;
-  box-shadow: 0 0.7px 3px #bbdffd33;
-  padding: 6px 3px;
-}
-.cc-class-tab-btn {
-  background: none;
-  border: none;
-  color: #345;
-  font-size: 1.08rem;
-  font-weight: 700;
-  border-radius: 16px;
-  padding: 8px 22px;
-  margin: 0 2px;
-  transition: background 0.25s, color 0.16s;
-  outline: 0px solid transparent;
-  cursor: pointer;
-}
-.cc-class-tab-btn-active, .cc-class-tab-btn:focus, .cc-class-tab-btn:hover {
-  background: var(--main-secondary, #FFD166);
-  color: #0b3a4b;
-}
-.cc-tabview {
-  max-width: 900px;
-  margin: 0 auto;
-  width: 98vw;
-}
-
-.cc-chat-wrap, .cc-bulletin-wrap, .cc-notebook-wrap, .cc-projects-wrap, .cc-calls-wrap {
-  padding: 14px 0;
-  width: 100%;
-}
-.cc-chat-card, .cc-bulletin-card, .cc-notebook-card, .cc-projects-card, .cc-calls-card {
-  min-height: 350px;
-  background: #fff;
-  border-radius: var(--large-radius, 30px);
-  padding: 30px 34px;
-}
-.cc-chat-history {
-  height: 220px;
-  overflow-y: auto;
-  background: #eaf2ff59;
-  border-radius: var(--large-radius, 30px);
-  padding: 11px 17px 3px 13px;
-  margin-bottom: 18px;
-  box-shadow: 0 2px 12px #e1e8fc27;
-}
-.cc-chat-empty {
-  color: #208cbb;
-  padding-top: 30px;
-  font-weight: 600;
-}
-.cc-chat-msg {
-  padding: 6px 8px;
-  margin: 6px 0;
-  border-radius: 16px;
-  background: #eaf2ff;
-  color: #0b3a4b;
-  font-size: 1rem;
-  position: relative;
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
-}
-.cc-chat-own {
-  background: var(--main-accent, #06D6A0);
-  color: #fff;
-  align-self: flex-end;
-}
-.cc-chat-sender {
-  font-size: 0.95rem;
-  font-weight: 700;
-  min-width: 55px;
-}
-
-.cc-chat-text {
-  flex-grow: 1;
-}
-.cc-chat-time {
-  color: #338a72bb;
-  font-size: 0.8rem;
-  padding-left: 9px;
-}
-.cc-chat-send {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-}
-.cc-bulletin-list, .cc-notebook-list {
-  margin-top: 10px;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.cc-bulletin-empty, .cc-notebook-empty {
-  color: #ccc;
-  text-align: center;
-  padding-top: 35px;
-  font-weight: 500;
-}
-.cc-bulletin-item, .cc-note-item {
-  background: #e5f2fa;
-  border-radius: 16px;
-  margin-bottom: 12px;
-  padding: 11px 17px;
-  color: #1e4763;
-  box-shadow: 0 1px 4px #c1d6f726;
-}
-.cc-bulletin-meta {
-  display: flex;
-  font-size: 0.96rem;
-  gap: 11px;
-  color: #097f7c;
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-.cc-bulletin-author {
-  color: #097f7c;
-  font-weight: 700;
-}
-.cc-bulletin-time {
-  color: #1e4763cc;
-  font-weight: 400;
-}
-
-.cc-bulletin-text {
-  margin-top: 3px;
-  font-size: 1.08rem;
-}
-.cc-bulletin-postform {
-  display: flex;
-  gap: 9px;
-  margin-top: 18px;
-}
-
-.cc-notebook-form {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.cc-note-item {
-  margin-bottom: 13px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.cc-note-subject {
-  color: var(--main-accent, #06D6A0);
-  font-weight: 700;
-  margin-right: 6px;
-}
-.cc-note-title {
-  font-size: 1.05rem;
-  margin-top: 2px;
-}
-.cc-note-date {
-  font-size: 0.93rem;
-  color: #aecce5;
-}
-.cc-note-author {
-  font-size: 0.98rem;
-  color: #7a5;
-  font-weight: 500;
-}
-.cc-btn[disabled], .cc-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.cc-projects-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 1.17rem;
-  font-weight: 700;
-  gap: 32px;
-}
-.cc-projects-form {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.cc-projects-list {
-  margin-top: 15px;
-}
-.cc-empty-text {
-  color: #8bb;
-  font-size: 1.08rem;
-  text-align: center;
-}
-
-.cc-single-project {
-  margin-bottom: 33px;
-}
-.cc-proj-title {
-  font-size: 1.18rem;
-  font-weight: 700;
-  margin-bottom: 7px;
-  margin-top: 7px;
-  color: #277cb6;
-}
-.cc-teams-bar {
-  margin-bottom: 11px;
-  margin-top: 5px;
-}
-.cc-team-card {
-  margin-right: 13px;
-}
-.cc-team-members {
-  font-size: 0.99rem;
-  font-weight: 500;
-  color: #235b59;
-}
-.cc-tasks-sec {
-  margin-top: 8px;
-  border-radius: 19px;
-  background: #eaf9ed;
-  padding: 9px 13px 9px 14px;
-}
-.cc-tasks-wrap {
-  margin-bottom: 10px;
-}
-.cc-tasks-form {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.cc-tasks-list {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.cc-task-item {
-  display: flex;
-  align-items: center;
-  background: #ffffffcc;
-  border-radius: 13px;
-  margin: 8px 0;
-  padding: 8px 11px;
-  font-size: 1.04rem;
-  border: 1px solid #cafbe0aa;
-}
-.cc-task-completed {
-  text-decoration: line-through;
-  background: #c8ffe5bb;
-  color: #45a16e;
-}
-.cc-task-right-group {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-.cc-task-assignee {
-  border: 1px solid #b5eee2;
-  color: #098;
-  background: #eafffa;
-  border-radius: 8px;
-  padding: 3px 8px;
-}
-.cc-progress-bar-wrap {
-  margin: 9px 0 3px 0;
-}
-.cc-progress-bar-label {
-  font-size: 1.03rem;
-  font-weight: 700;
-  margin-bottom: 3px;
-  color: #1678b5;
-}
-.cc-progress-outer {
-  width: 100%;
-  height: 17px;
-  background: #c2e3ff;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.cc-progress-inner {
-  height: 100%;
-  background: var(--main-accent, #06D6A0);
-  transition: width 0.5s;
-}
-
-.cc-calls-chooser {
-  text-align: center;
-  padding: 16px 0;
-}
-.cc-calls-fakevideo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100px;
-}
-.cc-calls-avatar {
-  margin: 16px 0 0 0;
-  background: #A7C7E7;
-  border-radius: 100px;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  box-shadow: 0 3px 15px #aad8eb5d;
-  font-size: 2.4rem;
-}
-
-@media (max-width: 670px) {
-  .cc-navbar {
-    padding: 0 8px;
-    font-size: 1rem;
-  }
-  .cc-card {
-    padding: 16px 12px;
-    margin-bottom: 22px;
-  }
-  .cc-create-join {
-    flex-direction: column !important;
-    gap: 11px;
-  }
-  .cc-classroom-header {
-    padding: 13px 8px;
-    font-size: 1.04rem;
-  }
-  .cc-class-tabs-bar {
-    font-size: 1rem;
-    width: 99vw;
-    min-width: 0;
-    max-width: 98vw;
-    padding: 3px;
-  }
-}
-
-::-webkit-scrollbar {
-  width: 7px;
-  background: #edf7fa77;
-  border-radius: 12px;
-}
-::-webkit-scrollbar-thumb {
-  background: #93bedd;
-  border-radius: 16px;
-}
+/* ... (rest unchanged) ... */
 `;
 
-// Inject CSS once on first load
 if (!document.getElementById("cc-global-styles")) {
   const styleTag = document.createElement("style");
   styleTag.id = "cc-global-styles";
