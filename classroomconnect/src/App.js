@@ -204,14 +204,14 @@ function App() {
   return (
     <div className="cc-main-bg app-expanded-bg">
       <nav className="cc-navbar cc-navbar-modern">
-        <div className="cc-logo" style={{ color: NAVY }}>
+        <div className="cc-logo">
           <span className="cc-logo-img" role="img" style={{ marginRight: 7 }}>
             🎒
           </span>
           ClassroomConnect
         </div>
         <div className="cc-nav-right">
-          <span className="cc-username" style={{ color: NAVY }}>{username}</span>
+          <span className="cc-username">{username}</span>
           <span className="cc-ucode" title="Your unique user code">
             {userCode}
           </span>
