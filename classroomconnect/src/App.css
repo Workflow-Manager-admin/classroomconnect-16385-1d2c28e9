@@ -78,20 +78,49 @@ body, .app-bg-contrast {
 
 /* Top action row: Create, Code input, Join */
 .top-action-bar {
+  /* (Removed for vertical re-layout) */
+  display: none !important;
+}
+
+/* New left-vertical-actions: stack Create, Enter Code, Join vertically, left-aligned */
+.left-vertical-actions {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
   margin-bottom: 36px;
+  padding-left: 6px;
+  width: 100%;
+  max-width: 238px;
 }
 @media (max-width: 600px) {
-  .top-action-bar {
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 28px;
+  .left-vertical-actions {
+    max-width: 98vw;
+    padding-left: 0;
+    margin-bottom: 20px;
   }
 }
+.vertical-join-form {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.vertical-join-form .white-input {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+.vertical-join-form .round-action-btn {
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  align-self: flex-start;
+}
+
 
 /* Rounded action buttons and input */
 .round-action-btn {
