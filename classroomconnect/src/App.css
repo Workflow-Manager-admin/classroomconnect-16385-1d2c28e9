@@ -334,52 +334,59 @@ body,
 .cc-register-card,
 .cc-card,
 .cc-classcard {
-  border-radius: var(--large-radius);
+  border-radius: var(--card-radius);
   border: none !important;
-  background: linear-gradient(135deg, #FFD795 80%, #fff6c1 100%);
+  background: var(--main-bg);
   color: var(--navy);
-  box-shadow: 0 6px 24px 0 rgba(220,187,93,0.13), var(--shadow);
-  padding: 27px 24px 18px 24px;
-  margin: 0 auto;
+  box-shadow: var(--shadow);
+  padding: 27px 26px 19px 26px;
+  margin: 0 auto 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
 }
 
 .cc-card {
-  min-width: 225px;
+  min-width: 230px;
   max-width: 360px;
 }
-
 .cc-register-card {
-  min-width: 270px;
-  max-width: 400px;
-  background: #fff; 
-  color: var(--navy); 
-  margin-top: 32px;
+  min-width: 255px;
+  max-width: 410px;
+  background: #fff;
+  color: var(--navy);
+  margin-top: 30px;
 }
 
 .cc-classcard {
   cursor: pointer;
-  min-width: 220px;
-  max-width: 340px;
+  min-width: 190px;
+  max-width: 320px;
   width: 100%;
   gap: 7px;
-  background: linear-gradient(135deg, #FFD795 80%, #fff6c1 100%) !important;
-  color: var(--navy) !important;
-  border-radius: var(--large-radius) !important;
+  background: var(--orange) !important;
+  color: var(--deep-navy) !important;
+  border-radius: var(--pill-radius) !important;
   text-align: center;
-  font-weight: 800;
-  transition: box-shadow var(--transition), transform var(--transition);
+  font-weight: 850;
+  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
   outline: none;
   border: none !important;
-  padding: 27px 20px 18px 20px;
-  font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
+  padding: 22px 26px 14px 26px;
+  margin-right: 15px;
+  font-size: 1.09rem;
+  line-height: 1.45;
+  box-shadow: 0 4px 14px 0 rgba(240,190,64,0.07), 0 2px 12px 0 rgba(130,166,164,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-main);
 }
 .cc-classcard:focus, .cc-classcard:hover {
-  box-shadow: 0 8px 24px 0 rgba(220,187,93,0.20), var(--shadow);
-  transform: translateY(-2px) scale(1.045);
+  box-shadow: 0 11px 32px 0 rgba(240,175,96,0.19), 0 2px 19px 0 rgba(50,70,99,0.07);
+  background: #ffe485 !important;
+  transform: translateY(-2px) scale(1.033);
 }
 
 .cc-card h2,
