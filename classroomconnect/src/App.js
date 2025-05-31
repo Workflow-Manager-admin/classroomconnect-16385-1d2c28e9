@@ -830,13 +830,10 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
       );
     case "notebook":
       return (
-        <div>
-          <h2 style={{ marginTop: 0, color: "#245296" }}>Notebook</h2>
-          <div style={{ background: "#f6f7fb", borderRadius: 12, padding: 18, color: "#26335a" }}>
-            Notes and uploads for <b>{classroom.name}</b> go here.
-            <div style={{ fontSize: 13, color: "#4965ab", marginTop: 12, opacity: 0.67 }}>(Document upload/organize stub)</div>
-          </div>
-        </div>
+        <ClassNotebook
+          classroom={classroom}
+          loggedInUser={loggedInUser}
+        />
       );
     case "calls":
       return (
