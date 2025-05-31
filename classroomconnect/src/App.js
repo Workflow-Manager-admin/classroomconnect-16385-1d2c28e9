@@ -1301,4 +1301,223 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
   );
 }
 
+/**
+ * PUBLIC_INTERFACE
+ * Classroom Notebook: Upload (any user), list and download files per classroom (all shared/mocked, in-memory only).
+ */
+function ClassNotebook({ classroom, loggedInUser }) {
+  // Files are stored in sessionStorage, keyed by classroom code, with in-memory array.
+  const notebookKey = 'notebook-' + classroom.code;
+  const [files, setFiles] = React.useState(() => {
+    try {
+      return (
+        JSON.parse(window.sessionStorage.getItem(notebookKey) || "[]") || []
+      );
+    } catch {
+      return [];
+    }
+  });
+
+  // Update sessionStorage on file change
+  React.useEffect(() => {
+    try {
+      window.sessionStorage.setItem(notebookKey, JSON.stringify(files));
+    } catch {}
+  }, [files, notebookKey]);
+
+  // Handle new uploads
+  function handleFileUpload(e) {
+    const selected = Array.from(e.target.files);
+    if (!selected.length) return;
+    const now = Date.now();
+    // Read all files as ArrayBuffer (simulate, no backend)
+    Promise.all(selected.map(file =>
+      new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          // Only keep base64 and internal meta for mock download (name, size, type, user, when, data)
+          resolve({
+            id: "nf-" + Math.random().toString(36).slice(2, 8) + now,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            uploader: loggedInUser,
+            uploadTime: now,
+            data: event.target.result, // base64 string
+          });
+        };
+        reader.readAsDataURL(file);
+      })
+    )).then(newFiles => {
+      setFiles(prev => [
+        ...newFiles,
+        ...prev
+      ]);
+    });
+    // Reset input so same file can be uploaded again if needed
+    e.target.value = "";
+  }
+
+  // Download file (client-side from memory)
+  function handleDownload(file) {
+    const link = document.createElement("a");
+    link.href = file.data;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+
+  // Format size for human-readable
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  }
+
+  return (
+    <div style={{ minHeight: 330 }}>
+      <h2 style={{ marginTop: 0, color: "#245296", fontWeight: 800, fontSize: 23 }}>
+        Shared Notebook
+      </h2>
+      <div style={{
+        background: "#f6f7fb",
+        borderRadius: 12,
+        padding: "21px 19px 9px 19px",
+        color: "#26335a",
+        marginBottom: 24,
+      }}>
+        <div style={{
+          fontWeight: 600,
+          marginBottom: 12,
+          color: "#22639e",
+          fontSize: 16.3
+        }}>
+          Upload notes, handouts, slides, or images for your classroom.
+        </div>
+        {/* File Input */}
+        <label
+          htmlFor="upload"
+          style={{
+            display: "inline-block",
+            background: "#FFD166",
+            color: "#16518e",
+            fontWeight: 820,
+            padding: "8px 26px",
+            borderRadius: 23,
+            cursor: "pointer",
+            marginBottom: 12,
+            fontSize: 15.5,
+            boxShadow: "0 1.5px 8px 0 rgba(140,140,110,0.11)",
+            border: "2px dashed #ffc205",
+          }}
+        >
+          <span role="img" aria-label="Upload" style={{ marginRight: 8 }}>📤</span>
+          Upload File(s)
+          <input
+            id="upload"
+            type="file"
+            multiple
+            style={{ display: "none" }}
+            onChange={handleFileUpload}
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.txt,.csv,.xlsx,.xls,.svg,.heic,.heif"
+          />
+        </label>
+        <div style={{ fontSize: 13.2, color: "#117aa2", marginTop: 4, marginBottom: 5 }}>
+          PDF, DOCX, PPTX, images and more supported. Max 5 MB each. <span style={{ color: "#f54242" }}>*</span> File storage is in-browser only, not persistent!
+        </div>
+      </div>
+      {/* File List */}
+      <div style={{
+        background: "#f9fafc",
+        borderRadius: 13,
+        boxShadow: "0 2px 14px 0 #eaf0fb",
+        border: "1.4px solid #dde5f4",
+        padding: files.length === 0 ? "32px 22px" : "10px 0 7px 0",
+        minHeight: 127,
+        marginBottom: 11,
+      }}>
+        {files.length === 0 ? (
+          <div style={{
+            color: "#88a",
+            opacity: 0.85,
+            fontWeight: 500,
+            fontSize: 16.2,
+            textAlign: "center"
+          }}>
+            No files shared yet in <b>{classroom.name}</b>.
+            <div style={{ fontSize: 13.6, color: "#4f6eb9", marginTop: 7, opacity: 0.68 }}>(Shared notebook is classroom-visible and demo only.)</div>
+          </div>
+        ) : (
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: "15px",
+            marginTop: 0,
+          }}>
+            <thead>
+              <tr style={{ color: "#315e7c", fontWeight: 800, textAlign: "left", background: "#f5feff" }}>
+                <th style={{ padding: "7px 9px 7px 15px", borderBottom: "1.5px solid #eaf4fa" }}>File</th>
+                <th style={{ padding: "7px 9px", borderBottom: "1.5px solid #eaf4fa" }}>Size</th>
+                <th style={{ padding: "7px 9px", borderBottom: "1.5px solid #eaf4fa" }}>Uploader</th>
+                <th style={{ padding: "7px 9px", borderBottom: "1.5px solid #eaf4fa" }}>Uploaded</th>
+                <th style={{ padding: "7px 9px", borderBottom: "1.5px solid #eaf4fa" }}>Download</th>
+              </tr>
+            </thead>
+            <tbody>
+              {files
+                .slice()
+                .sort((a, b) => b.uploadTime - a.uploadTime)
+                .map(file => (
+                  <tr key={file.id} style={{
+                    borderBottom: "1.2px solid #ecf1fc",
+                    background: "#fff" }}>
+                    <td style={{ padding: "10px 9px 8px 15px", fontWeight: 700, color: "#184c7b", maxWidth: 250, wordBreak: "break-word" }}>
+                      <span role="img" aria-label="file" style={{ marginRight: 8 }}>
+                        {file.type.startsWith("image") ? "🖼️" :
+                          file.type.includes("pdf") ? "📄"
+                          : file.type.includes("presentation") || file.name.match(/\.(ppt|pptx)$/i) ? "📊"
+                          : file.type.includes("spreadsheet") || file.name.match(/\.(xls|xlsx|csv)$/i) ? "🗂️"
+                          : file.type.includes("document") || file.name.match(/\.(doc|docx|txt)$/i) ? "📝"
+                          : "📎"}
+                      </span>
+                      {file.name}
+                    </td>
+                    <td style={{ padding: "10px 9px 8px 5px", color: "#2a868f" }}>{formatSize(file.size)}</td>
+                    <td style={{ padding: "10px 9px 8px 4px", color: "#3a6d46", fontWeight: 800 }}>{file.uploader}</td>
+                    <td style={{ padding: "10px 9px 8px 9px", color: "#555", fontSize: 13 }}>
+                      {new Date(file.uploadTime).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </td>
+                    <td style={{ padding: "10px 9px 8px 4px" }}>
+                      <button
+                        aria-label={"Download " + file.name}
+                        onClick={() => handleDownload(file)}
+                        style={{
+                          background: "#EFF7ED",
+                          color: "#245296",
+                          border: "1.2px solid #bacff7",
+                          borderRadius: 17,
+                          fontWeight: 800,
+                          fontSize: 15.5,
+                          cursor: "pointer",
+                          padding: "5px 14px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          boxShadow: "0 1px 6px 0 #ebf4e9",
+                        }}
+                        title={"Download " + file.name}
+                      >
+                        ⬇️ Download
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default App;
