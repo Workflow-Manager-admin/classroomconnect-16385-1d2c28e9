@@ -300,7 +300,7 @@ function Dashboard({
             <div
               style={{
                 textAlign: "center",
-                color: "#456",
+                color: NAVY,
                 fontSize: "1.12rem"
               }}
             >
