@@ -87,21 +87,28 @@ body,
 .cc-nav-right {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
+  justify-content: flex-end;
 }
 
 .cc-username, .cc-ucode {
-  background: rgba(255,255,255,0.10);
-  padding: 6px 13px;
-  border-radius: var(--border-radius);
+  background: rgba(255,255,255,0.13);
+  padding: 6px 19px;
+  border-radius: var(--pill-radius);
   color: var(--white);
-  margin-right: 4px;
-  font-weight: 600;
-  font-size: 1.06em;
+  margin-right: 3px;
+  font-weight: 700;
+  font-size: 1.03em;
+  line-height: 1.9;
+  letter-spacing: 0.4px;
+  box-shadow: 0 1.5px 9px 0 rgba(62,90,120,0.06);
 }
 .cc-ucode {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.19);
   color: var(--white);
+  font-family: monospace, var(--font-main);
+  letter-spacing: 1px;
+  font-weight: 600;
 }
 
 .cc-main-container-expanded {
