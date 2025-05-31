@@ -4,12 +4,17 @@
   --text-color: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.7);
   --border-color: rgba(255, 255, 255, 0.1);
+
+  /* PRIMARY BLUE OVERRIDE for global use */
+  --primary-blue: #7393B3;
+  --primary-blue-dark: #4a6485;
+  --primary-blue-light: #9eb5d2;
 }
 
 body {
   margin: 0;
   font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  background-color: var(--main-bg, #A7C7E7);
+  background-color: var(--main-bg, #7393B3);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
