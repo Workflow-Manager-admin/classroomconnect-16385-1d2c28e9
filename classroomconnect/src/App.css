@@ -255,27 +255,27 @@ body,
 
 /* Begin custom styles for Create/Join buttons */
 .cc-btn-create, .cc-btn-join {
-  background: var(--white) !important;
-  color: var(--navy) !important;
   border: none !important;
-  border-radius: 32px !important;
-  box-shadow: 0 2.5px 12px 0 rgba(0, 31, 77, 0.09), 0 2.5px 8px 0 rgba(115,147,179,0.11);
-  letter-spacing: 1px;
+  border-radius: var(--cta-radius) !important;
+  letter-spacing: 1.1px;
   font-weight: 900 !important;
+  font-family: var(--font-main);
   text-transform: uppercase;
-  font-family: inherit;
-  transition: 
-    background var(--transition),
-    color var(--transition),
-    border-color var(--transition),
-    box-shadow var(--transition);
+  box-shadow: 0 2.5px 8px 0 rgba(90,110,170,0.10);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 19px 0;
 }
 
 .cc-btn-create {
-  border-color: transparent !important;
+  background: var(--purple-btn) !important;
+  color: var(--white) !important;
+  box-shadow: 0 2.5px 17px 0 rgba(99,90,230,0.13);
 }
 .cc-btn-join {
-  border-color: transparent !important;
+  background: var(--orange-btn) !important;
+  color: var(--navy) !important;
+  box-shadow: 0 2.5px 15px 0 rgba(253,156,46,0.10);
 }
 
 /* Visually distinct and accessible hover/focus states */
