@@ -214,7 +214,7 @@ body {
 
 /* Modern Card Shadow effects for pop */
 .cc-card:hover, .cc-card:focus-within {
-  box-shadow: 0 14px 64px #a7c7e766, 0 7px 23px #b8ccee42 inset;
+  box-shadow: 0 14px 64px #7393b366, 0 7px 23px #a7bbd242 inset;
 }
 
 .cc-classcards-grid {
