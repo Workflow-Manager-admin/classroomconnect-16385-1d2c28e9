@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 // Util for random unique code
@@ -377,54 +377,62 @@ function Dashboard({
     <div className="cc-dash-bg">
       <div className="cc-dashboard-wrap">
         <div className="cc-main-cta-center">
-          <button
-            className="cc-btn cc-btn-large cc-main-big-btn cc-btn-create"
-            type="button"
-            onClick={onCreate}
-            style={{
-              borderRadius: "32px",
-              fontWeight: 900,
-              letterSpacing: "1px",
-              textTransform: "uppercase"
-              // All color, background, border, shadow handled in class
-            }}
-          >
-            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.17em', verticalAlign: "-0.08em" }}>➕</span>
-            Create
-          </button>
-          <form
-            onSubmit={handleJoin}
-            className="cc-main-cta-join-form"
-            autoComplete="off"
-          >
-            <input
-              className="cc-input cc-main-big-input"
-              placeholder="Enter Code"
-              maxLength={6}
-              minLength={6}
-              required
-              style={{ textAlign: "center" }}
-              value={joinCode}
-              onChange={(e) =>
-                setJoinCode(e.target.value.replace(/[^\d]/g, ""))
-              }
-            />
+          <div className="cc-main-cta-flexrow">
             <button
-              className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
-              type="submit"
-              style={{
-                borderRadius: "32px",
-                marginTop: 0,
-                fontWeight: 900,
-                textTransform: "uppercase",
-                letterSpacing: "1px"
-                // All color, background, border, shadow handled in class
-              }}
+              className="cc-btn cc-btn-large cc-main-big-btn cc-btn-create"
+              type="button"
+              onClick={onCreate}
             >
-              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.05em', verticalAlign: "-0.05em" }}>🚪</span>
-              Join
+              <span
+                role="img"
+                aria-label="add"
+                style={{
+                  marginRight: 10,
+                  fontSize: "1.17em",
+                  verticalAlign: "-0.08em",
+                }}
+              >
+                ➕
+              </span>
+              Create
             </button>
-          </form>
+            <form
+              onSubmit={handleJoin}
+              className="cc-main-cta-join-form"
+              autoComplete="off"
+              style={{ margin: 0, width: "100%" }}
+            >
+              <input
+                className="cc-input cc-main-big-input"
+                placeholder="Enter Code"
+                maxLength={6}
+                minLength={6}
+                required
+                style={{ textAlign: "center" }}
+                value={joinCode}
+                onChange={(e) =>
+                  setJoinCode(e.target.value.replace(/[^\d]/g, ""))
+                }
+              />
+              <button
+                className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
+                type="submit"
+              >
+                <span
+                  role="img"
+                  aria-label="join"
+                  style={{
+                    marginRight: 10,
+                    fontSize: "1.05em",
+                    verticalAlign: "-0.05em",
+                  }}
+                >
+                  🚪
+                </span>
+                Join
+              </button>
+            </form>
+          </div>
         </div>
         <div
           style={{
@@ -471,7 +479,6 @@ function ClassCard({ classroom, color, onClick }) {
       className="cc-card cc-classcard"
       tabIndex={0}
       style={{
-        // Styling handled by className for design parity;
         background: "var(--orange)",
         color: "var(--deep-navy)",
         cursor: "pointer",
