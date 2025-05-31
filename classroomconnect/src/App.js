@@ -1389,7 +1389,7 @@ function ProjectTeamModal({
                           return prev.filter(x => x !== m);
                       });
                     }}
-                    disabled={username === m} // always in team
+                    disabled={username === m} // only the current user is disabled (always selected)
                   />
                   <span style={{
                     marginLeft: 8,
