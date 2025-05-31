@@ -318,7 +318,7 @@ body,
   font-weight: 800;
   transition: box-shadow var(--transition), transform var(--transition);
   outline: none;
-  border: 3px solid #fbb040 !important;
+  border: none !important;
   padding: 27px 20px 18px 20px;
   font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
 }
