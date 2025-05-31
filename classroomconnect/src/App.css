@@ -196,12 +196,12 @@ body,
 }
 
 .cc-main-cta-join-form {
-  width: 98%;
+  width: 100%;
   margin-top: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
+  gap: 12px;
 }
 
 .cc-main-big-input {
