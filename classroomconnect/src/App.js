@@ -214,23 +214,24 @@ function App() {
             Classroom Insider
           </header>
 
-          {/* Top row: Create, Input, Join */}
-          <section className="top-action-bar">
+          {/* Left column: Create, Enter Code, Join (vertical stack) */}
+          <section className="left-vertical-actions">
             <button
               className="round-action-btn round-btn-create"
               type="button"
               tabIndex={0}
               onClick={() => setShowCreateClassModal(true)}
               aria-label="Create"
+              style={{ alignSelf: "flex-start", marginBottom: 19 }}
             >
               <span role="img" aria-label="Plus" style={{ marginRight: 6, fontWeight: 600 }}>➕</span>
               Create
             </button>
             <form
-              className="round-action-form"
+              className="vertical-join-form"
               onSubmit={handleJoin}
               autoComplete="off"
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 12, width: "100%", maxWidth: 210 }}
             >
               <input
                 className="white-input round-input"
@@ -238,7 +239,7 @@ function App() {
                 maxLength={6}
                 minLength={6}
                 required
-                style={{ textAlign: "center" }}
+                style={{ textAlign: "left", width: "100%", marginBottom: 0 }}
                 value={joinCode}
                 onChange={(e) =>
                   setJoinCode(e.target.value.replace(/[^0-9]/g, ""))
@@ -249,9 +250,8 @@ function App() {
                 className="round-action-btn round-btn-join"
                 type="submit"
                 aria-label="Join"
-                style={{ marginLeft: 12 }}
+                style={{ marginTop: 0, alignSelf: "flex-start" }}
               >
-                <span role="img" aria-label="Join Door" style={{ marginRight: 3 }}>🚪</span>
                 Join
               </button>
             </form>
