@@ -567,15 +567,15 @@ function BulletinBoard({ username, classCode }) {
       <div className="cc-card cc-bulletin-card">
         <div className="cc-bulletin-list">
           {posts.length === 0 ? (
-            <div className="cc-bulletin-empty">
+            <div className="cc-bulletin-empty" style={{ color: NAVY }}>
               No announcements yet!
             </div>
           ) : (
             posts.slice().reverse().map((b) => (
-              <div key={b.id} className="cc-bulletin-item">
-                <div className="cc-bulletin-meta">
-                  <span className="cc-bulletin-author">{b.author}</span>
-                  <span className="cc-bulletin-time">
+              <div key={b.id} className="cc-bulletin-item" style={{ color: NAVY }}>
+                <div className="cc-bulletin-meta" style={{ color: NAVY }}>
+                  <span className="cc-bulletin-author" style={{ color: NAVY }}>{b.author}</span>
+                  <span className="cc-bulletin-time" style={{ color: NAVY }}>
                     {b.time}
                   </span>
                 </div>
@@ -689,17 +689,17 @@ function NotebookBoard({ username, classCode }) {
         </form>
         <div className="cc-notebook-list">
           {notes.length === 0 && (
-            <div className="cc-notebook-empty">No notes yet! Upload one.</div>
+            <div className="cc-notebook-empty" style={{ color: NAVY }}>No notes yet! Upload one.</div>
           )}
           {notes
             .slice()
             .reverse()
             .map((n) => (
-              <div key={n.id} className="cc-note-item">
+              <div key={n.id} className="cc-note-item" style={{ color: NAVY }}>
                 <div>
-                  <strong className="cc-note-subject">{n.subject}</strong>
-                  <span className="cc-note-author"> by {n.author}</span>
-                  <span className="cc-note-date">
+                  <strong className="cc-note-subject" style={{ color: accent }}>{n.subject}</strong>
+                  <span className="cc-note-author" style={{ color: NAVY }}> by {n.author}</span>
+                  <span className="cc-note-date" style={{ color: NAVY }}>
                     {" "}
                     ({n.created.replace(",", "")})
                   </span>
@@ -911,7 +911,7 @@ function GroupProjects({ username, classCode }) {
   return (
     <div className="cc-projects-wrap">
       <div className="cc-card cc-projects-card">
-        <div className="cc-projects-heading">
+        <div className="cc-projects-heading" style={{ color: NAVY }}>
           <span>Group Projects</span>
           <button
             className="cc-btn cc-btn-small"
@@ -946,7 +946,7 @@ function GroupProjects({ username, classCode }) {
         )}
         <div className="cc-projects-list">
           {projects.length === 0 && (
-            <div className="cc-empty-text">
+            <div className="cc-empty-text" style={{ color: NAVY }}>
               No group projects yet. Start one!
             </div>
           )}
