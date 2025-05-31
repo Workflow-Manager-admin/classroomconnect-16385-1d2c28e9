@@ -484,7 +484,10 @@ function App() {
   );
 }
 
-// PUBLIC_INTERFACE
+/* 
+ * PUBLIC_INTERFACE
+ * Updated: Show both classroom name and ID together inside card, styled for clarity.
+ */
 function ClassCard({ classroom, color, onSelect }) {
   return (
     <button
@@ -513,23 +516,46 @@ function ClassCard({ classroom, color, onSelect }) {
       aria-label={"Open " + classroom.name}
       onClick={() => onSelect && onSelect(classroom)}
     >
-      <div style={{
-        fontWeight: 900,
-        fontSize: "1.12rem",
-        marginBottom: 6,
-        color: "#1a2c45",
-        letterSpacing: "0.5px",
-        wordBreak: "break-word",
-        textAlign: "center"
-      }}>
-        {classroom.name}
-      </div>
-      <div style={{
-        fontWeight: 700,
-        fontSize: "1.01rem",
-        color: "#5275af"
-      }}>
-        #{classroom.code}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 2,
+          width: "100%",
+          marginBottom: 8,
+        }}
+      >
+        <span
+          style={{
+            fontWeight: 900,
+            fontSize: "1.10rem",
+            color: "#1a2c45",
+            letterSpacing: "0.6px",
+            wordBreak: "break-word",
+            textAlign: "center",
+            lineHeight: 1.2
+          }}
+        >
+          {classroom.name}
+        </span>
+        <span
+          style={{
+            fontWeight: 750,
+            fontSize: "0.98rem",
+            color: "#2558A1",
+            background: "#fff8e6",
+            borderRadius: "14px",
+            padding: "2.2px 10px",
+            letterSpacing: "0.25px",
+            display: "inline-block",
+            marginTop: 2
+          }}
+          title="Classroom ID"
+        >
+          ID: {classroom.code}
+        </span>
       </div>
       <div style={{ fontSize: 13, color: "#548e74", fontWeight: 600 }}>
         Joined {new Date(classroom.joinedAt).toLocaleDateString([], {

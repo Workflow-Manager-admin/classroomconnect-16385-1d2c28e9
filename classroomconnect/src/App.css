@@ -349,6 +349,20 @@ body, .app-bg-contrast {
   flex-direction: column;
   transition: box-shadow 0.17s, background 0.19s, transform 0.13s;
 }
+
+/* If needed later, style an ID label inside a card more directly.
+.classcard-id-label {
+  font-weight: 750;
+  font-size: 0.98rem;
+  color: #2558A1;
+  background: #fff8e6;
+  border-radius: 14px;
+  padding: 2.2px 10px;
+  letter-spacing: 0.25px;
+  display: inline-block;
+  margin-top: 2px;
+}
+*/
 .square-classcard:focus,
 .square-classcard:hover {
   background: #ffeccc !important;
