@@ -103,7 +103,7 @@ body, .app-bg-contrast {
   flex-direction: column;
   align-items: flex-start;
   gap: 0;
-  margin-bottom: 36px;
+  margin-bottom: 13px; /* Reduced from 36px for tighter spacing */
   padding-left: 6px;
   width: 100%;
   max-width: 238px;
@@ -112,7 +112,7 @@ body, .app-bg-contrast {
   .left-vertical-actions {
     max-width: 98vw;
     padding-left: 0;
-    margin-bottom: 20px;
+    margin-bottom: 7px; /* Also reduced for mobile/compact view */
   }
 }
 .vertical-join-form {
