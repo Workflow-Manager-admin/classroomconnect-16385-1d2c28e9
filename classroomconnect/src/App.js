@@ -17,7 +17,7 @@ function generateCode(length = 6, alphanumeric = false) {
  * Update navy blue for all text
  */
 const NAVY = "#001f4d";
-const babyBlue = "#60A9FF"; // Update to lighter playful blue
+const babyBlue = "#7393B3"; // Updated blue
 const accent = "#06D6A0";
 const secondary = "#FFD166";
 const pink = "#FCC2FF";
