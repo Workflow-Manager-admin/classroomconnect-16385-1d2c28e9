@@ -170,7 +170,7 @@ body {
 /* Gaps, Spacing, and Card UI improvements */
 .cc-card {
   border-radius: 24px !important;
-  box-shadow: 0 4px 34px 0 #b8ccee3e, 0 1.5px 12px 0 #cfeeef23 inset;
+  box-shadow: 0 4px 34px 0 #a7bbd23e, 0 1.5px 12px 0 #a7bbd223 inset;
   padding: 34px 48px !important;
   margin-bottom: 36px !important;
   background: #fcfdff;
