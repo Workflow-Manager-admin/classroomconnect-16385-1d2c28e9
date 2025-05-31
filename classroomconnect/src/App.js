@@ -1096,11 +1096,11 @@ function TasksSection({
         </button>
       </form>
       {tasks.length === 0 ? (
-        <div className="cc-empty-text" style={{ marginTop: 16 }}>
+        <div className="cc-empty-text" style={{ marginTop: 16, color: NAVY }}>
           No tasks yet.
         </div>
       ) : (
-        <ul className="cc-tasks-list">
+        <ul className="cc-tasks-list" style={{ color: NAVY }}>
           {tasks.map((t) => (
             <li
               key={t.id}
@@ -1110,6 +1110,7 @@ function TasksSection({
               onDragOver={handleDragOver}
               onDrop={() => handleDrop(t)}
               aria-label={`Task: ${t.name}`}
+              style={{ color: NAVY }}
             >
               <input
                 type="checkbox"
@@ -1124,6 +1125,7 @@ function TasksSection({
                   className="cc-task-assignee"
                   value={t.assignee}
                   onChange={(e) => assignTask(t.id, e.target.value)}
+                  style={{ color: NAVY }}
                 >
                   <option value="">Unassigned</option>
                   {users.map((u, i) => (
@@ -1133,7 +1135,7 @@ function TasksSection({
                   ))}
                 </select>
                 {t.assignee && (
-                  <span className="cc-task-assignee-label">
+                  <span className="cc-task-assignee-label" style={{ color: NAVY }}>
                     {t.assignee}
                   </span>
                 )}
@@ -1176,8 +1178,8 @@ function CallsPanel({ username, classCode }) {
     <div className="cc-calls-wrap">
       <div className="cc-card cc-calls-card">
         {!callActive ? (
-          <div className="cc-calls-chooser">
-            <h3>Start a Call</h3>
+          <div className="cc-calls-chooser" style={{ color: NAVY }}>
+            <h3 style={{ color: NAVY }}>Start a Call</h3>
             <div style={{ display: "flex", gap: 18, marginTop: 18 }}>
               <button
                 className="cc-btn cc-btn-large"
@@ -1196,7 +1198,7 @@ function CallsPanel({ username, classCode }) {
             </div>
             <div
               style={{
-                color: "#568",
+                color: NAVY,
                 marginTop: 22,
                 fontSize: "1rem",
                 fontWeight: 500
