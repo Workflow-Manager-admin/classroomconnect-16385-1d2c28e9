@@ -465,26 +465,19 @@ function Dashboard({
 }
 
 function ClassCard({ classroom, color, onClick }) {
+  // Pills, yellow, shadow, dark/navy text, no border/gradient, accessible
   return (
     <button
       className="cc-card cc-classcard"
       tabIndex={0}
       style={{
-        background: "linear-gradient(135deg,#FFD795 80%,#fff6c1 100%)",
-        color: "#001f4d",
+        // Styling handled by className for design parity;
+        background: "var(--orange)",
+        color: "var(--deep-navy)",
         cursor: "pointer",
-        boxShadow:
-          "0 6px 24px 0 rgba(220,187,93,0.13), 0 2px 16px 0 rgba(115,147,179,0.10)",
-        padding: "24px 20px 18px 20px",
-        gap: "7px",
-        minWidth: 220,
-        maxWidth: 340,
-        width: "100%",
+        borderRadius: "999px",
         margin: "0",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        fontFamily: "'Quicksand','Inter','Roboto',sans-serif"
+        fontFamily: "var(--font-main)",
       }}
       onClick={onClick}
       aria-label={"Open " + classroom.name}
@@ -492,19 +485,20 @@ function ClassCard({ classroom, color, onClick }) {
       <div
         style={{
           fontWeight: 900,
-          fontSize: "1.22rem",
-          marginBottom: 10,
-          color: "#001f4d",
-          letterSpacing: "1px"
+          fontSize: "1.20rem",
+          marginBottom: 9,
+          color: "var(--deep-navy)",
+          letterSpacing: "1px",
+          wordBreak: "break-word"
         }}
       >
         {classroom.name}
       </div>
       <div
         style={{
-          fontWeight: 700,
-          fontSize: "0.98rem",
-          letterSpacing: 2,
+          fontWeight: 750,
+          fontSize: "1.02rem",
+          letterSpacing: 1.1,
           color: "#406495"
         }}
       >
