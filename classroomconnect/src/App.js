@@ -2197,5 +2197,46 @@ function ClassNotebook({ classroom, loggedInUser }) {
   );
 }
 
+/** 
+ * CopyIDButton - Copies the given code to clipboard, shows confirmation.
+ * PUBLIC_INTERFACE
+ */
+function CopyIDButton({ code }) {
+  const [copied, setCopied] = React.useState(false);
+  function handleCopy() {
+    if (navigator.clipboard && code) {
+      navigator.clipboard.writeText(code + "").then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1700);
+      });
+    }
+  }
+  return (
+    <button
+      className="round-action-btn"
+      style={{
+        padding: "3.5px 13px",
+        fontWeight: 900,
+        fontSize: 16,
+        background: "#FFF6D7",
+        color: "#595B0A",
+        border: "1.3px solid #FFD166",
+        borderRadius: 15,
+        outline: copied ? "2px solid #06D6A0" : undefined,
+        transition: "outline .14s",
+        marginLeft: 0,
+        marginBottom: 1,
+        boxShadow: "0 2px 7px 0 rgba(170,130,44,0.06)"
+      }}
+      type="button"
+      aria-label={copied ? "Copied!" : "Copy Classroom ID"}
+      onClick={handleCopy}
+      tabIndex={0}
+    >
+      {copied ? "✓" : <span role="img" aria-label="Copy">📋</span>}
+    </button>
+  );
+}
+
 // For export
 export default App;
