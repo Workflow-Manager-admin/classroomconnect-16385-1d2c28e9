@@ -1433,26 +1433,538 @@ function ClassroomChat({
 
 // ... (Rest of BulletinBoard and ClassNotebook remain unchanged)
 
-// PUBLIC_INTERFACE
-/** Bulletin Board Component */
+/**
+ * PUBLIC_INTERFACE
+ * CallsPanel: Audio/Video call room inside a classroom.
+ * Handles simulated user join/leave, permission prompts, local mic/cam toggles,
+ * video grid, fallback UI, and mock peer logic.
+ *
+ * NOTE: Real WebRTC signaling and streams would be integrated at described points in comments.
+ */
+function CallsPanel({ classroom, loggedInUser }) {
+  // Global per-room unique id (simulate peer identity in call)
+  const myPeerId = React.useMemo(() =>
+    localStorage.getItem("avPeerId") ||
+    (() => {
+      const id = "p-" + Math.random().toString(36).slice(2, 9) + Date.now().toString().slice(-5);
+      localStorage.setItem("avPeerId", id);
+      return id;
+    })(),
+    []
+  );
+
+  // Simulated callboard: in a real app, this would be a server/shared source (signaling).
+  // Here, we use window.sessionStorage keyed by "callboard-CLASSROOMCODE"
+  // so all browser tabs will see simulated 'peers' if open for demo purposes.
+
+  // Utility: sessionStorage binding for participant state
+  function useCallboard(classId, myUser, peerId, displayName) {
+    const key = "callboard-" + classId;
+    // { peerId: {name, user, joined, audio, video} }
+    const [peers, setPeers] = React.useState(() => {
+      try {
+        return JSON.parse(window.sessionStorage.getItem(key) || "{}") || {};
+      } catch {
+        return {};
+      }
+    });
+    // Listen for changes by polling (for demo, in real use onmessage or signals)
+    React.useEffect(() => {
+      const interval = setInterval(() => {
+        try {
+          let obj = JSON.parse(window.sessionStorage.getItem(key) || "{}") || {};
+          setPeers(obj);
+        } catch {}
+      }, 550); // Mild delay for "network" effect
+      return () => clearInterval(interval);
+    }, [key]);
+
+    // Write to callboard utility.
+    const updateMyPeer = React.useCallback((data) => {
+      try {
+        let obj = JSON.parse(window.sessionStorage.getItem(key) || "{}") || {};
+        obj[peerId] = { ...obj[peerId], ...data };
+        window.sessionStorage.setItem(key, JSON.stringify(obj));
+        setPeers(obj);
+      } catch {}
+    }, [key, peerId]);
+    // Remove on unmount
+    React.useEffect(() => {
+      return () => {
+        try {
+          let obj = JSON.parse(window.sessionStorage.getItem(key) || "{}") || {};
+          if (obj[peerId]) { delete obj[peerId]; }
+          window.sessionStorage.setItem(key, JSON.stringify(obj));
+          setPeers({ ...obj });
+        } catch {}
+      };
+    }, [key, peerId]);
+    // Leave function
+    function leavePeer() {
+      try {
+        let obj = JSON.parse(window.sessionStorage.getItem(key) || "{}") || {};
+        if (obj[peerId]) { delete obj[peerId]; }
+        window.sessionStorage.setItem(key, JSON.stringify(obj));
+        setPeers({ ...obj });
+      } catch {}
+    }
+    return [peers, updateMyPeer, leavePeer];
+  }
+
+  // AV state
+  const [inCall, setInCall] = React.useState(false);
+  const [avPerm, setAvPerm] = React.useState("not-requested"); // "not-requested" | "pending" | "granted" | "denied"
+  const [mediaStream, setMediaStream] = React.useState(null);
+  const [localAudio, setLocalAudio] = React.useState(true);
+  const [localVideo, setLocalVideo] = React.useState(true);
+
+  // Connect to mock "callboard" for this classroom
+  const [callPeers, setCallPeer, leaveCallPeer] = useCallboard(classroom.code, loggedInUser, myPeerId, loggedInUser);
+
+  // Get own fake 'peer' entry
+  const myCallEntry = inCall ? callPeers[myPeerId] : null;
+  const activePeers = Object.values(callPeers || {}).filter(p => p && p.joined);
+
+  // Handle join
+  function handleJoinCall() {
+    setAvPerm("pending");
+    // Re-request permissions (camera/mic)
+    navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+      .then((stream) => {
+        setMediaStream(stream);
+        setAvPerm("granted");
+        setInCall(true);
+        // Signal self join to callboard
+        setCallPeer({
+          name: loggedInUser,
+          user: loggedInUser,
+          joined: true,
+          audio: true,
+          video: true,
+        });
+      })
+      .catch((err) => {
+        setMediaStream(null);
+        setAvPerm("denied");
+      });
+  }
+
+  // On leave: clean own callboard presence, close media
+  function handleLeaveCall() {
+    leaveCallPeer();
+    setInCall(false);
+    setMediaStream(null);
+    setAvPerm("not-requested");
+    // Stop media tracks
+    if (mediaStream) for (let track of mediaStream.getTracks()) track.stop();
+  }
+
+  // On toggle audio (mute/unmute)
+  function handleToggleMic() {
+    setLocalAudio((prev) => {
+      let next = !prev;
+      setCallPeer({ audio: next });
+      if (mediaStream) {
+        mediaStream.getAudioTracks().forEach(track => (track.enabled = next));
+      }
+      return next;
+    });
+  }
+  // On toggle video (show/hide cam)
+  function handleToggleCam() {
+    setLocalVideo((prev) => {
+      let next = !prev;
+      setCallPeer({ video: next });
+      if (mediaStream) {
+        mediaStream.getVideoTracks().forEach(track => (track.enabled = next));
+      }
+      return next;
+    });
+  }
+
+  // On join, always sync self callboard presence
+  React.useEffect(() => {
+    if (inCall && avPerm === "granted") {
+      setCallPeer({
+        name: loggedInUser, joined: true, audio: localAudio, video: localVideo,
+      });
+    }
+  }, [inCall, avPerm, localAudio, localVideo, setCallPeer, loggedInUser]);
+
+  // Remove from callboard on hard tab close/unmount
+  React.useEffect(() => {
+    return () => {
+      if (inCall) handleLeaveCall();
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  // Responsive grid helper, sizes
+  function getGridCols(n) {
+    if (window.innerWidth < 640) return 1;
+    if (n <= 1) return 1;
+    if (n === 2) return 2;
+    if (n <= 4) return 2;
+    if (n <= 6) return 3;
+    if (n <= 9) return 3;
+    return 4;
+  }
+
+  // Simulate incoming peers' video with color blocks and names
+  function renderVideoGrid() {
+    const participants = activePeers.length ? activePeers : (inCall && myCallEntry ? [myCallEntry] : []);
+    const gridCols = getGridCols(participants.length);
+    return (
+      <div className="av-video-grid" style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+        gap: window.innerWidth < 500 ? 10 : 16,
+        margin: "0 auto",
+        maxWidth: 900,
+        minHeight: 190,
+        background: "#e7f2fa",
+        borderRadius: 15,
+        padding: 10,
+        justifyItems: "center",
+        alignItems: "center"
+      }}>
+        {participants.map((peer, idx) => {
+          const isMe = inCall && peer.name === loggedInUser;
+          // For my own stream
+          if (isMe && mediaStream && localVideo && avPerm === "granted") {
+            return (
+              <div
+                key={"myvideo"}
+                className="av-video-item"
+                style={{
+                  background: "#fafcfb",
+                  border: "2.4px solid #7E9CB2",
+                  borderRadius: 13,
+                  boxShadow: "0 2.8px 18px 0 rgba(100,140,200,0.08)",
+                  overflow: "hidden",
+                  minHeight: 100,
+                  minWidth: 90,
+                  maxWidth: 210,
+                  aspectRatio: "4/3",
+                  position: "relative"
+                }}
+              >
+                <video
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: 13,
+                    background: "#cddefc"
+                  }}
+                  playsInline
+                  autoPlay
+                  muted
+                  ref={el => {
+                    if (el && mediaStream) {
+                      el.srcObject = mediaStream;
+                    }
+                  }}
+                />
+                <span title="You" style={{
+                  position: "absolute", left: 9, bottom: 8,
+                  background: "#cedcf9", color: "#1e367b",
+                  fontWeight: 800, borderRadius: 8, fontSize: 14,
+                  padding: "2.5px 15px", opacity: 0.98
+                }}>
+                  {peer.name} (Me)
+                </span>
+                {!localAudio && (
+                  <span className="av-mic-muted-icon" title="Mic muted" style={{
+                    position: "absolute", right: 10, top: 7, color: "#c92f24", fontWeight: 900, fontSize: 22, opacity: 0.88
+                  }}>
+                    <MicOffIcon />
+                  </span>
+                )}
+              </div>
+            );
+          }
+          // Simulated peer (show color block, name, video/mic icon)
+          return (
+            <div
+              key={peer.name + idx}
+              className="av-video-item"
+              style={{
+                background: peer.video ? "#ffe8ed" : "#f6f7f9",
+                border: "2px solid #FFD166",
+                borderRadius: 13,
+                minHeight: 100,
+                minWidth: 92,
+                maxWidth: 210,
+                aspectRatio: "4/3",
+                boxShadow: "0 2.8px 18px 0 rgba(255,200,120,0.08)",
+                position: "relative",
+                display: "flex", alignItems: "center", justifyContent: "center"
+              }}
+            >
+              {/* Simulated video: show animated color flicker if camera on */}
+              {peer.video ? (
+                <div style={{
+                  background: `linear-gradient(121deg, #feedbe 78%, #fdd1a2 100%)`,
+                  width: "100%", height: "100%", borderRadius: 13,
+                }}>
+                  {/* Animate a colored pulse for "activity" */}
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: 13,
+                      background: "radial-gradient(circle, #ffd277 60%, transparent 98%)",
+                      animation: "pulse-peer 1.3s infinite alternate"
+                    }}
+                  />
+                </div>
+              ) : (
+                <div style={{
+                  width: "100%", height: "100%", background: "#f4f6fc", borderRadius: 13,
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                  <span style={{ color: "#c3caaa", fontSize: 35, opacity: 0.44 }}>📷</span>
+                </div>
+              )}
+              {/* Peer name */}
+              <span style={{
+                position: "absolute", left: 9, bottom: 7,
+                background: "#fffbe1", color: "#b2730b",
+                fontWeight: 800, borderRadius: 7,
+                fontSize: 13,
+                padding: "3px 13px", opacity: 0.99
+              }}>
+                {peer.name}
+              </span>
+              {/* Mic indicator */}
+              {!peer.audio && (
+                <span className="av-mic-muted-icon" title="Mic muted" style={{
+                  position: "absolute", right: 10, top: 6, color: "#c92f24", fontWeight: 900, fontSize: 22, opacity: 0.77
+                }}>
+                  <MicOffIcon />
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // UI for when not in call (join button), show participant count
+  if (!inCall) {
+    const activeCount = activePeers.length;
+    return (
+      <div>
+        <h2 style={{ marginTop: 0, color: "#234492", fontWeight: 800 }}>Audio / Video Call</h2>
+        <div style={{
+          background: "#eaf7ff", borderRadius: 12, padding: 20,
+          color: "#235a73", marginBottom: 19
+        }}>
+          {activeCount === 0
+            ? <>No call in progress for <b>{classroom.name}</b>.<br /><br />
+              <button className="main-action-btn main-action-btn-create"
+                style={{ minWidth: 110, fontSize: 17, marginTop: 8 }}
+                onClick={handleJoinCall}
+              >
+                <span title="Join Call" aria-label="Join Call" style={{ marginRight: 9, fontWeight: 700 }}>📞</span>
+                Join Call
+              </button>
+            </>
+            : <>
+              <span style={{ fontWeight: 700 }}>{activeCount} participant{activeCount !== 1 && "s"} in call</span>
+              <br />
+              <button className="main-action-btn main-action-btn-create"
+                style={{ minWidth: 110, fontSize: 17, marginTop: 14 }}
+                onClick={handleJoinCall}
+                title="Join and start your camera/microphone"
+              >
+                <span title="Join Call" aria-label="Join Call" style={{ marginRight: 9, fontWeight: 700 }}>📞</span>
+                Join Call
+              </button>
+            </>}
+        </div>
+        <div style={{ fontSize: 13, color: "#548ead", opacity: 0.67 }}>
+          Requires browser permission for camera and microphone.<br />
+          <br />
+          <span>
+            {activeCount > 0
+              ? "You are not in the call. Join to participate with audio and video."
+              : "No active group call yet. Be the first to join."}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // UI for denied permission
+  if (avPerm === "denied") {
+    return (
+      <div style={{
+        padding: 32, background: "#ffecec", borderRadius: 14, color: "#9c1b27",
+        border: "2.5px solid #FFD166", marginTop: 31, textAlign: "center"
+      }}>
+        <div style={{ fontSize: 25, marginBottom: 9 }}>❌</div>
+        Unable to access microphone or camera.
+        <div style={{ margin: "13px auto 22px auto", color: "#aa5f0b", fontWeight: 700 }}>
+          Please allow browser permissions and try again.
+        </div>
+        <button
+          className="main-action-btn main-action-btn-create"
+          style={{ minWidth: 120, fontSize: 17 }}
+          onClick={() => setAvPerm("not-requested")}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Main in-call UI
+  return (
+    <div style={{ width: "100%", maxWidth: 980, margin: "0 auto", minHeight: 272 }}>
+      <div style={{ display: "flex", gap: 11, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 13 }}>
+        <h2 style={{ margin: 0, color: "#234492", fontWeight: 900, fontSize: 22, flex: 1 }}>In Call</h2>
+        <span className="av-user-count" style={{
+          background: "#fef9df", color: "#b2730b", fontWeight: 700, fontSize: 14, borderRadius: 8,
+          padding: "5px 15px", marginLeft: 14
+        }}>
+          <UserIcon /> {activePeers.length}
+        </span>
+        <button
+          className="main-action-btn"
+          style={{
+            background: "#ffeaea", color: "#9b2a19", fontWeight: 800, fontSize: 15,
+            borderRadius: 18, border: "2px solid #FFD166", marginLeft: 8,
+            padding: "7px 18px"
+          }}
+          title="Leave Call"
+          aria-label="Leave Call"
+          onClick={handleLeaveCall}
+        >
+          <LeaveIcon /> Leave
+        </button>
+      </div>
+      {renderVideoGrid()}
+      {/* Controls bar */}
+      <div className="av-controls-bar" style={{
+        display: "flex", gap: 18, alignItems: "center", justifyContent: "center",
+        marginTop: 17, padding: "7.5px 0"
+      }}>
+        <button
+          className="av-control-icon-btn"
+          onClick={handleToggleMic}
+          aria-label={localAudio ? "Mute Microphone" : "Unmute Microphone"}
+          title={localAudio ? "Mute Microphone" : "Unmute Microphone"}
+          style={{
+            background: localAudio ? "#fff" : "#ffeaea",
+            color: localAudio ? "#194" : "#e24",
+            border: "2.5px solid #b8eac8",
+            fontWeight: 900
+          }}
+        >
+          {localAudio ? <MicOnIcon /> : <MicOffIcon />}
+        </button>
+        <button
+          className="av-control-icon-btn"
+          onClick={handleToggleCam}
+          aria-label={localVideo ? "Stop Camera" : "Start Camera"}
+          title={localVideo ? "Turn Off Camera" : "Turn On Camera"}
+          style={{
+            background: localVideo ? "#fff" : "#fafafe",
+            color: localVideo ? "#287" : "#88a",
+            border: "2.5px solid #abd7eb"
+          }}
+        >
+          {localVideo ? <VideoOnIcon /> : <VideoOffIcon />}
+        </button>
+        <button
+          className="av-control-icon-btn"
+          onClick={handleLeaveCall}
+          title="Leave Call"
+          aria-label="Leave Call"
+          style={{
+            background: "#ffd7d6", color: "#e11511",
+            border: "2.5px solid #FFD166"
+          }}
+        >
+          <LeaveIcon />
+        </button>
+        <span style={{ fontSize: 13, marginLeft: 19, color: "#888", opacity: 0.72 }}>
+          <span role="img" aria-label="info">ℹ️</span> This media/peer grid is a local mock –
+          <span style={{ color: "#197ac8", fontWeight: 700 }}> real peer-to-peer video/audio (WebRTC) would be handled here.</span>
+        </span>
+      </div>
+      {/* Optional: add sidebar for future chat/screen-share/raise-hand in production */}
+    </div>
+  );
+}
+
+// --- Icons used for buttons/tooltips (inline for minimal dependencies) ---
+function MicOnIcon() {
+  // Mic on: outline
+  return (
+    <svg width="25" height="25" viewBox="0 0 28 28" style={{ verticalAlign: "middle", marginBottom: -1 }}>
+      <rect fill="none" />
+      <ellipse cx="14" cy="10.6" rx="4" ry="5.1" stroke="#12561b" strokeWidth="2.1" fill="none" />
+      <rect x="10.3" y="15.8" width="7.4" height="2.4" rx="1.2" fill="#b6e7b6" />
+      <rect x="12.8" y="17" width="2.4" height="4.8" rx="1.2" fill="#d3f9d0" />
+    </svg>
+  );
+}
+function MicOffIcon() {
+  return (
+    <svg width="23" height="23" viewBox="0 0 25 25" style={{ verticalAlign: "middle", marginBottom: -1 }}>
+      <ellipse cx="12.5" cy="9.8" rx="4" ry="5" stroke="#c92f24" strokeWidth="2.1" fill="none" />
+      <line x1="5.5" y1="5.2" x2="19" y2="18.6" stroke="#e2423a" strokeWidth="2.3" />
+      <rect x="8.9" y="14.3" width="7.3" height="2.1" rx="1.04" fill="#ffeaea" />
+    </svg>
+  );
+}
+function VideoOnIcon() {
+  return (
+    <svg width="27" height="27" viewBox="0 0 27 27" style={{ verticalAlign: "middle", marginBottom: -2 }}>
+      <rect x="4.7" y="7" width="13.3" height="8.7" rx="2.6" fill="#dbefff" stroke="#1b5c91" strokeWidth="2" />
+      <polygon points="20.7,8.5 25,11.65 25,16.08 20.7,13.4" fill="#ffecd0" stroke="#e4b23a" strokeWidth="1.1" />
+    </svg>
+  );
+}
+function VideoOffIcon() {
+  return (
+    <svg width="27" height="27" viewBox="0 0 27 27" style={{ verticalAlign: "middle", marginBottom: -2 }}>
+      <rect x="4.7" y="7" width="13.3" height="8.7" rx="2.6" fill="#f9f9f9" stroke="#b1b6bc" strokeWidth="2" />
+      <polygon points="20.7,8.5 25,11.65 25,16.08 20.7,13.4" fill="#ffeaea" stroke="#ebbbad" strokeWidth="1.1" />
+      <line x1="5.2" y1="5.8" x2="22.4" y2="19.2" stroke="#dd3046" strokeWidth="2.14" />
+    </svg>
+  );
+}
+function LeaveIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 22 22" style={{ verticalAlign: "middle", marginBottom: -2 }}>
+      <rect fill="none" />
+      <path d="M6.2 11h9.7" stroke="#db1d20" strokeWidth="2" />
+      <polygon points="12.5,7.1 18,11 12.5,14.9" fill="#FFD166" stroke="#db1d20" strokeWidth="1.4" />
+    </svg>
+  );
+}
+function UserIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 22 22" style={{ verticalAlign: "middle", marginRight: 4 }}>
+      <circle cx="11" cy="8" r="4" stroke="#b2730b" strokeWidth="1.5" fill="#ffd166" />
+      <rect x="3" y="15" width="16" height="4" rx="2" fill="#ffeeba" stroke="#dbb03a" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+// ... existing BulletinBoard and ClassNotebook remain unchanged ...
+
 function BulletinBoard({ classroom, loggedInUser, userCode }) {
-  // ... (Unchanged from template)
-  // (Because this is a very large file, refer to original for unchanged sections)
-  // Full unchanged BulletinBoard code not shown here due to length.
-  // In production keep entire body of BulletinBoard and ClassNotebook from original code.
-  // Their content is unchanged from template!
-  // Similarly for ClassNotebook.
-  // Only the ServicesPanel & detail wiring is inserted.
-
-  // (Insert full BulletinBoard and ClassNotebook implementation here from original)
-
-  // For brevity, omitted, but leave the rest of the template as-is.
-  // [PASTE REMAINING FUNCTIONS HERE FROM ORIGINAL IF REQUIRED]
+  // ... (Unchanged: see template)
 }
 
 function ClassNotebook({ classroom, loggedInUser }) {
-  // ... (Function body unchanged from original code)
-  // See source for details.
+  // ... (Unchanged: see template)
 }
 
 // For export
