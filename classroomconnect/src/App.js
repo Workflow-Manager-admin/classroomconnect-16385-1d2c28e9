@@ -384,11 +384,10 @@ function Dashboard({
               }
             />
             <button
-              className="cc-btn cc-btn-large cc-main-big-btn"
+              className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
               type="submit"
               style={{
-                marginTop: "4px",
-                color: "#fff"
+                marginTop: "4px"
               }}
             >
               <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.08em' }}>🚪</span>
