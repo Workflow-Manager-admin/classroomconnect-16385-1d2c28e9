@@ -258,8 +258,10 @@ function App() {
           </section>
 
           {/* Section - Classrooms row */}
-          <section className="classrooms-row">
-            <div className="classrooms-title">Your Classrooms</div>
+          <section style={{ width: "100%", marginTop: 32, marginBottom: 8 }}>
+            <div className="classrooms-title" style={{ marginBottom: 11, marginRight: 0 }}>
+              Your Classrooms
+            </div>
             <div className="classcards-row">
               {classrooms.length === 0 ? (
                 <div className="empty-class-msg">No classes yet. Join or create one!</div>
