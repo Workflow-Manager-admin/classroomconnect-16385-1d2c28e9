@@ -822,13 +822,11 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
       );
     case "board":
       return (
-        <div>
-          <h2 style={{ marginTop: 0, color: "#3b600c" }}>Bulletin Board</h2>
-          <div style={{ background: "#F9FFF0", borderRadius: 12, padding: 18, color: "#395e18", fontSize: 16 }}>
-            Bulletin posts for <b>{classroom.name}</b> will appear here.
-            <div style={{ fontSize: 13, color: "#78966c", marginTop: 12, opacity: 0.65 }}>(Reminders and announcements stub)</div>
-          </div>
-        </div>
+        <BulletinBoard
+          classroom={classroom}
+          loggedInUser={loggedInUser}
+          userCode={userCode}
+        />
       );
     case "notebook":
       return (
