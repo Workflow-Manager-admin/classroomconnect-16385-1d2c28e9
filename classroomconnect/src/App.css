@@ -184,11 +184,15 @@ body,
 }
 
 .cc-main-cta-center .cc-btn {
-  width: 94%;
-  min-width: 220px;
-  font-size: 1.14em;
-  padding: 17px 0;
+  width: 100%;
+  min-width: 210px;
+  max-width: 400px;
+  font-size: 1.18rem;
+  padding: 19px 0;
   box-sizing: border-box;
+  border-radius: var(--cta-radius) !important;
+  margin-bottom: 0;
+  margin-top: 0;
 }
 
 .cc-main-cta-join-form {
