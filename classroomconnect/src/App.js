@@ -258,7 +258,7 @@ function App() {
           </section>
 
           {/* Section - Classrooms row */}
-          <section style={{ width: "100%", marginTop: 32, marginBottom: 8 }}>
+          <section style={{ width: "100%", marginTop: 14, marginBottom: 8 }}>
             <div className="classrooms-title" style={{ marginBottom: 11, marginRight: 0 }}>
               Your Classrooms
             </div>
