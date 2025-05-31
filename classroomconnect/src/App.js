@@ -488,7 +488,7 @@ function ClassroomChat({ username, classCode }) {
       <div className="cc-card cc-chat-card">
         <div className="cc-chat-history">
           {messages.length === 0 && (
-            <div className="cc-chat-empty">No messages yet. Start chatting!</div>
+            <div className="cc-chat-empty" style={{ color: NAVY }}>No messages yet. Start chatting!</div>
           )}
           {messages.map((msg, idx) => (
             <div
@@ -497,12 +497,15 @@ function ClassroomChat({ username, classCode }) {
                 "cc-chat-msg" +
                 (msg.sender === username ? " cc-chat-own" : "")
               }
+              style={msg.sender === username
+                  ? { background: accent, color: "#fff" }
+                  : { color: NAVY }}
             >
-              <span className="cc-chat-sender">
+              <span className="cc-chat-sender" style={{ color: NAVY }}>
                 {msg.sender}
               </span>
               <span className="cc-chat-text">{msg.text}</span>
-              <span className="cc-chat-time">{msg.time}</span>
+              <span className="cc-chat-time" style={{ color: NAVY }}>{msg.time}</span>
             </div>
           ))}
           <div ref={chatEndRef} />
