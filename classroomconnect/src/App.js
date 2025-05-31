@@ -917,7 +917,7 @@ function ProjectTeamModal({
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-        background: "rgba(6,88,150,.10)", display: "flex",
+        background: "rgba(115,147,179,.13)", display: "flex",
         alignItems: "center", justifyContent: "center", zIndex: 9999
       }}>
         <div className="cc-card" style={{
@@ -973,7 +973,7 @@ function ProjectTeamModal({
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-        background: "rgba(6,88,150,.08)", display: "flex",
+        background: "rgba(115,147,179,.08)", display: "flex",
         alignItems: "center", justifyContent: "center", zIndex: 9999
       }}>
         <div className="cc-card" style={{
@@ -1019,7 +1019,7 @@ function ProjectTeamModal({
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-        background: "rgba(180,216,245,0.09)", display: "flex",
+        background: "rgba(174,191,212,0.09)", display: "flex",
         alignItems: "center", justifyContent: "center", zIndex: 9999
       }}>
         <div className="cc-card" style={{
@@ -1100,7 +1100,7 @@ function ProjectTeamModal({
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-        background: "rgba(180,216,245,0.09)", display: "flex",
+        background: "rgba(174,191,212,0.09)", display: "flex",
         alignItems: "center", justifyContent: "center", zIndex: 9999
       }}>
         <div className="cc-card" style={{
@@ -1663,7 +1663,7 @@ body, .cc-main-bg, .cc-dashboard-wrap, .cc-classroom-header, .cc-classcard, .cc-
   color: var(--navy, #001f4d) !important;
 }
 body, .cc-main-bg {
-  background: var(--main-bg, #A7C7E7);
+  background: var(--main-bg, #7393B3);
   min-height: 100vh;
   font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
 }
