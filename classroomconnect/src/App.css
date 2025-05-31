@@ -225,6 +225,11 @@ body {
   margin: 0 auto;
   transition: box-shadow 0.21s, transform 0.13s;
 }
+
+.cc-bg-babyblue {
+  background: #60A9FF !important;
+  color: #001f4d !important;
+}
 .cc-classcard:focus, .cc-classcard:hover {
   transform: translateY(-5px) scale(1.04);
   box-shadow: 0 16px 45px #a7c7e7bb, 0 7px 23px #b8ccee34 inset;
