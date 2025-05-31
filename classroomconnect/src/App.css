@@ -171,7 +171,7 @@ body,
 .cc-class-tab-btn, .cc-class-tab-btn-active {
   background: var(--primary-blue);
   color: var(--white);
-  border: 3px solid var(--orange);
+  border: none; /* REMOVE ALL BORDERS */
   border-radius: var(--border-radius);
   font-family: inherit;
   font-size: 1.07em;
