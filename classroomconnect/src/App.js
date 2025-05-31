@@ -1425,8 +1425,275 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
   // ... (Unchanged: see template)
 }
 
+/**
+ * PUBLIC_INTERFACE
+ * Notebook section for classroom: handles in-memory file upload/download.
+ */
 function ClassNotebook({ classroom, loggedInUser }) {
-  // ... (Unchanged: see template)
+  // Per-classroom notebook files are stored in sessionStorage ("notebookFiles").
+  const notebookSessionKey = "notebookFiles";
+  const [fileList, setFileList] = React.useState(() => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      return all[classroom.code] || [];
+    } catch {
+      return [];
+    }
+  });
+
+  // file upload state (for accessibility and progress)
+  const [uploading, setUploading] = React.useState(false);
+
+  // For updating: re-fetch list when needed
+  const syncFromSession = () => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      setFileList(all[classroom.code] || []);
+    } catch {
+      setFileList([]);
+    }
+  };
+
+  // Handles file uploading
+  // PUBLIC_INTERFACE
+  function handleFileUpload(e) {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setUploading(true);
+    // For each file, create an object representing upload (with metadata & file/blob)
+    const toSave = files.map(file => ({
+      id: `${file.name}-${file.size}-${file.lastModified}-${Date.now()}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      uploader: loggedInUser,
+      uploadedAt: Date.now(),
+      fileBlob: null, // to be filled when loaded
+    }));
+
+    // Read actual files as blobs
+    Promise.all(
+      toSave.map((f, idx) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          resolve({ ...f, fileBlob: ev.target.result });
+        };
+        reader.readAsDataURL(files[idx]); // data: URL
+      }))
+    ).then((filesToAdd) => {
+      // Update in sessionStorage
+      let all = {};
+      try {
+        all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+      } catch {}
+      if (!all[classroom.code]) all[classroom.code] = [];
+      all[classroom.code] = [...filesToAdd, ...(all[classroom.code]||[])].slice(0, 40); // cap at 40 per class
+      window.sessionStorage.setItem(notebookSessionKey, JSON.stringify(all));
+      setUploading(false);
+      syncFromSession();
+      e.target.value = ""; // allow re-uploading same file again
+    });
+  }
+
+  // PUBLIC_INTERFACE
+  function handleFileDownload(file) {
+    // Use dataURL → download
+    const a = document.createElement('a');
+    a.href = file.fileBlob;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 120);
+  }
+
+  // PUBLIC_INTERFACE
+  function handleFileRemove(fileId) {
+    let all = {};
+    try {
+      all = JSON.parse(window.sessionStorage.getItem(notebookSessionKey) || "{}");
+    } catch {}
+    if (!all[classroom.code]) return;
+    all[classroom.code] = all[classroom.code].filter(f => f.id !== fileId);
+    window.sessionStorage.setItem(notebookSessionKey, JSON.stringify(all));
+    syncFromSession();
+  }
+
+  // Filetype filter for "common" learning files
+  const ACCEPTED_TYPES = [
+    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".bmp", ".txt", ".md",
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "image/*", "text/*"
+  ].join(",");
+
+  // Sort files: most recent first
+  const sortedFiles = [...fileList].sort((a, b) => b.uploadedAt - a.uploadedAt);
+
+  return (
+    <div style={{ minHeight: 360, paddingBottom: 19  }}>
+      <h2 style={{
+        color: "#195989",
+        fontWeight: 800,
+        marginTop: 1,
+        marginBottom: 13,
+        fontSize: 22
+      }}>
+        <span role="img" aria-label="Notebook" style={{ marginRight: 7 }}>📚</span>
+        Notebook
+      </h2>
+      <div className="notebook-upload-box" style={{
+        background: "#fafcff",
+        border: "2px dashed #7E9CB2",
+        borderRadius: 19,
+        boxShadow: "0 2.5px 10px 0 rgba(105,160,200,0.05)",
+        padding: "25px 15px 18px 15px",
+        marginBottom: 20,
+        maxWidth: 420,
+        display: "flex",
+        gap: 13,
+        alignItems: "center",
+        flexWrap: "wrap"
+      }}>
+        <input
+          type="file"
+          id="notebookfile"
+          accept={ACCEPTED_TYPES}
+          style={{ display: "none" }}
+          multiple
+          onChange={handleFileUpload}
+          aria-label="Choose files to upload to notebook"
+          disabled={uploading}
+        />
+        <label htmlFor="notebookfile"
+          className="main-action-btn main-action-btn-create"
+          tabIndex={0}
+          style={{
+            minWidth: 89,
+            border: "2.2px solid #06D6A0",
+            background: uploading ? "#bbb" : "var(--accent, #06D6A0)",
+            color: "#013c26",
+            fontWeight: 800,
+            opacity: uploading ? 0.64 : 1,
+            cursor: uploading ? "not-allowed" : "pointer"
+          }}
+        >
+          <span role="img" aria-label="Upload" style={{ marginRight: 7 }}>⬆️</span>
+          {uploading ? "Uploading..." : "Upload File(s)"}
+        </label>
+        <div style={{
+          color: "#487",
+          fontWeight: 600,
+          fontSize: 14.5
+        }}>
+          Attach notes, slides, handouts or assignments (PDF, DOCX, images, etc.)
+        </div>
+      </div>
+      {sortedFiles.length === 0 ? (
+        <div style={{
+          margin: "30px 0",
+          padding: "21px 10px",
+          background: "#f6fafd",
+          borderRadius: 11,
+          color: "#aac",
+          fontWeight: 600,
+          fontSize: 16.5,
+          textAlign: "center"
+        }}>
+          No files uploaded yet.<br />All files are public and visible only to class members.
+        </div>
+      ) : (
+        <div style={{
+          margin: "10px 0 13px 0",
+          overflowX: "auto",
+          borderRadius: 13,
+          background: "#fafdff",
+          border: "1.5px solid #97acd8"
+        }}>
+          <table className="notebook-files-table" style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            fontSize: 16,
+            color: "#233",
+            minWidth: 340
+          }}>
+            <thead style={{ background: "#edfbf9" }}>
+              <tr>
+                <th style={{ textAlign: "left", padding: "11px 7px 10px 12px", fontWeight: 800 }}>File Name</th>
+                <th style={{ textAlign: "left", padding: "11px 9px", fontWeight: 800 }}>Uploader</th>
+                <th style={{ textAlign: "left", padding: "11px 8px", fontWeight: 800 }}>Uploaded</th>
+                <th style={{ textAlign: "center", padding: "11px 8px", fontWeight: 800 }}>Download</th>
+                <th style={{ textAlign: "center", padding: "11px 8px", fontWeight: 800 }}>Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedFiles.map(f => (
+                <tr key={f.id} style={{
+                  background: "#fff",
+                  borderBottom: "1.5px solid #f1f4fb"
+                }}>
+                  <td style={{ padding: "9px 7px", fontWeight: 700, wordBreak: "break-word" }}>
+                    <span style={{ color: "#117c9a" }}>{f.name}</span>
+                  </td>
+                  <td style={{ padding: "8px 7px", fontSize: 15 }}>
+                    {f.uploader}
+                  </td>
+                  <td style={{ padding: "8px 7px", color: "#985", fontSize: 14, minWidth: 90 }}>
+                    {new Date(f.uploadedAt).toLocaleString([], {
+                      month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+                    })}
+                  </td>
+                  <td style={{ padding: "8px 7px", textAlign: "center" }}>
+                    <button
+                      aria-label={`Download ${f.name}`}
+                      title="Download"
+                      className="main-action-btn"
+                      style={{
+                        background: "#7E9CB2",
+                        color: "#fff",
+                        fontWeight: 900,
+                        padding: "3px 14px",
+                        fontSize: 15.5,
+                        borderRadius: 14,
+                        border: "none"
+                      }}
+                      onClick={() => handleFileDownload(f)}
+                    >
+                      ⬇️
+                    </button>
+                  </td>
+                  <td style={{ padding: "8px 7px", textAlign: "center" }}>
+                    {f.uploader === loggedInUser ? (
+                      <button
+                        aria-label={`Remove ${f.name}`}
+                        title="Remove"
+                        className="main-action-btn"
+                        style={{
+                          background: "#FFD166",
+                          color: "#A33",
+                          fontWeight: 900,
+                          padding: "3px 14px",
+                          fontSize: 15.5,
+                          borderRadius: 14,
+                          border: "none"
+                        }}
+                        onClick={() => handleFileRemove(f.id)}
+                      >
+                        🗑️
+                      </button>
+                    ) : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // For export

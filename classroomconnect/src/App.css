@@ -414,4 +414,32 @@ body, .app-bg-contrast {
   width: 9px;
 }
 
+/* Notebook section additions */
+.notebook-upload-box {
+  transition: background 0.16s, border-color 0.16s;
+}
+.notebook-upload-box:focus-within {
+  background: #eaf6ff;
+  border-color: #4F8CFF;
+}
+.notebook-files-table th,
+.notebook-files-table td {
+  font-family: var(--font-main);
+  border: none;
+}
+.notebook-files-table tr:hover {
+  background: #f5fdff;
+  transition: background 0.11s;
+}
+
+@media (max-width: 550px) {
+  .notebook-upload-box {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 17px 7px 12px 7px;
+  }
+  .notebook-files-table {
+    font-size: 13px;
+  }
+}
 
