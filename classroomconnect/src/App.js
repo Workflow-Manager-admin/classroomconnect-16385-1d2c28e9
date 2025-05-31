@@ -457,21 +457,49 @@ function ClassCard({ classroom, color, onClick }) {
       className="cc-card cc-classcard"
       tabIndex={0}
       style={{
-        border: "0px solid #fff5",
-        background: "#FFD166",
+        border: "3px solid #fbb040",
+        background: "linear-gradient(135deg,#FFD795 80%,#fff6c1 100%)",
         color: "#001f4d",
-        cursor: "pointer"
+        cursor: "pointer",
+        boxShadow:
+          "0 6px 24px 0 rgba(220,187,93,0.13), 0 2px 16px 0 rgba(115,147,179,0.10)",
+        borderRadius: "22px",
+        padding: "24px 20px 18px 20px",
+        gap: "7px",
+        minWidth: 220,
+        maxWidth: 340,
+        width: "100%",
+        margin: "0",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        fontFamily: "'Quicksand','Inter','Roboto',sans-serif"
       }}
       onClick={onClick}
       aria-label={"Open " + classroom.name}
     >
-      <div style={{ fontWeight: 700, fontSize: "1.2rem", marginBottom: 6 }}>
+      <div
+        style={{
+          fontWeight: 900,
+          fontSize: "1.22rem",
+          marginBottom: 10,
+          color: "#001f4d",
+          letterSpacing: "1px"
+        }}
+      >
         {classroom.name}
       </div>
-      <div style={{ fontWeight: 500, letterSpacing: 2 }}>
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: "0.98rem",
+          letterSpacing: 2,
+          color: "#406495"
+        }}
+      >
         #{classroom.code}
       </div>
-      <div style={{ fontSize: 13 }}>
+      <div style={{ fontSize: 13, color: "#5275af" }}>
         Joined{" "}
         {new Date(classroom.joinedAt).toLocaleDateString([], {
           month: "short",
