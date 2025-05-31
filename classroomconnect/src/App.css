@@ -396,43 +396,43 @@ body,
 
 /* --- FLEX LAYOUT FOR CLASSROOM CARDS --- */
 .cc-classcards-grid {
-  margin-top: 8px;
+  margin-top: 3px;
   width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
+  flex-direction: row;
+  overflow-x: auto;
+  gap: var(--padding-base);
   justify-content: flex-start;
   align-items: stretch;
-  padding-bottom: 18px;
+  padding-bottom: 12px;
+  scrollbar-height: thin;
 }
-/* Optionally, fallback grid for .cc-classcards-grid.is-grid */
-.cc-classcards-grid.is-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
-  gap: 30px;
-  justify-items: center;
-  padding-bottom: 18px;
-}
-
 @media (max-width: 900px) {
   .cc-classcards-grid {
-    gap: 16px;
-    padding: 8px 2vw 16px 2vw;
+    gap: 10px;
+    padding: 6px 2vw 13px 2vw;
   }
 }
 @media (max-width: 650px) {
   .cc-classcards-grid {
-    flex-direction: column;
-    gap: 12px;
-    padding: 8px 2vw 16px 2vw;
+    flex-direction: row;
+    gap: 8px;
+    padding: 5px 1vw 13px 1vw;
+  }
+}
+@media (max-width: 480px) {
+  .cc-classcards-grid {
+    gap: 6px;
+    padding: 3px 1vw 10px 1vw;
   }
 }
 
 @media (max-width: 440px) {
   .cc-classcard, .cc-card, .cc-register-card {
-    padding: 20px 4vw 16px 4vw;
-    min-width: 120px;
+    padding: 13px 3vw 9px 3vw;
+    min-width: 88px;
     max-width: 97vw;
+    font-size: 0.97em;
   }
   .cc-footer-content {
     padding: 7px 2vw;
