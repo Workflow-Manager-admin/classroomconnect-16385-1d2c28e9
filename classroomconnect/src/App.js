@@ -1226,6 +1226,20 @@ function ProjectTeamModal({
 }) {
   const [manualSelected, setManualSelected] = useState(details.manualSelected);
 
+  // Always include current user if manual team selection step active
+  React.useEffect(() => {
+    if (
+      details.step === 3 &&
+      details.teamType === "manual" &&
+      username &&
+      !manualSelected.includes(username)
+    ) {
+      setManualSelected((prev) => [username, ...prev]);
+    }
+    // Only run when step or teamType or username changes
+    // eslint-disable-next-line
+  }, [details.step, details.teamType, username]);
+  
   // Step 1: Enter project name
   if (details.step === 1) {
     return (
