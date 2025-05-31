@@ -402,20 +402,25 @@ button.btn, .cc-class-tab-btn {
   margin-top: 10px;
 }
 
+.cc-main-big-btn, .cc-main-big-input {
+  width: 320px;
+  max-width: 95vw;
+  box-sizing: border-box;
+}
+
 .cc-main-big-btn {
-  width: 240px;
-  max-width: 90vw;
   background: #7393B3;
-  color: #fff;
+  color: #fff !important;
   font-size: 1.08rem;
   border-radius: 999px !important;
-  padding: 13px 0;
+  padding: 13px 0 !important;
   font-weight: 700;
   box-shadow: 0 3px 16px 0 #a7bbd22e, 0 1px 6px 0 #a7bbd213 inset;
   letter-spacing: .02em;
   margin-bottom: 6px;
   margin-top: 0;
   transition: transform .13s, box-shadow .13s, background 0.16s;
+  border: none;
 }
 
 .cc-main-big-btn:hover,
@@ -423,9 +428,10 @@ button.btn, .cc-class-tab-btn {
   background: #4a6485;
   transform: translateY(-2px) scale(1.032);
   box-shadow: 0 8px 28px #7393b3bb, 0 2px 10px #a7bbd211 inset;
-  color: #fff;
+  color: #fff !important;
 }
 
+/* Ensure the input matches the button width, spacing, and font size */
 .cc-main-big-input {
   width: 320px;
   max-width: 95vw;
@@ -440,6 +446,7 @@ button.btn, .cc-class-tab-btn {
   color: #144781;
   border: 1.5px solid #c3e0fd;
   transition: border .14s;
+  box-sizing: border-box;
 }
 .cc-main-big-input:focus {
   border: 2px solid #7393B3;
@@ -452,8 +459,37 @@ button.btn, .cc-class-tab-btn {
   .cc-main-big-input {
     width: 98vw;
     font-size: 1.04rem;
-    padding: 15px 0;
+    padding: 15px 0 !important;
+    min-width: 0;
   }
+  .cc-main-big-btn, .cc-main-big-input {
+    max-width: 99vw;
+  }
+}
+
+/* Give classroom cards a 10px gap between them in grid */
+.cc-classcards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px !important;
+  margin-bottom: 18px !important;
+  justify-content: flex-start;
+}
+
+.cc-classcard {
+  /* Remove margin:auto to allow gap to work */
+  min-height: 150px;
+  max-width: 275px;
+  padding: 21px 21px;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 26px 0 #cbe6f033, 0 1.5px 12px 0 #cfeeef23 inset;
+  background: #FFD166 !important;
+  color: #001f4d !important;
+  margin: 0 !important; /* Remove auto/margin for correct gap */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .cc-main-cta-join-form {
