@@ -204,12 +204,12 @@ body {
   font-family: 'Quicksand', 'Inter', sans-serif !important;
   letter-spacing: 0.03em;
   font-weight: 800;
-  color: #002c61 !important;
+  color: #3a547a !important;
 }
 .cc-hero p, .cc-blurb, .cc-description, .cc-card .cc-bulletin-text {
   font-size: 1.16rem;
   font-weight: 500;
-  color: #285485 !important;
+  color: #496c95 !important;
 }
 
 /* Modern Card Shadow effects for pop */
