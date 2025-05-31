@@ -60,8 +60,9 @@ body {
     margin-left: 0 !important;
     margin-right: 0 !important;
     border-radius: 18px;
-    padding: 7px 0;
-    gap: 24px;
+    margin-top: 10px !important;  /* Reduce mobile top margin */
+    padding: 4px 0 10px 0;
+    gap: 14px; /* Reduce content gap for compactness */
   }
 }
 
