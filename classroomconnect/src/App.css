@@ -190,6 +190,7 @@ body {
   margin: 4px auto 0 auto !important; /* Reduced top margin from 14px */
   padding-left: 7px;
   padding-right: 7px;
+  background: none !important; /* preserve neutral bg */
 }
 
 .cc-classroom-bg {
@@ -324,19 +325,21 @@ body {
 }
 
 .btn {
-  background-color: var(--kavia-orange);
-  color: white;
+  background-color: var(--primary-blue, #7393B3);
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 10px 20px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
-
-.btn:hover {
-  background-color: #FF8B4D;
+.btn:hover,
+.btn:focus {
+  background-color: var(--primary-blue-dark, #4a6485);
+  color: #fff;
+  /* ensures contrast remains accessible */
 }
 
 .btn-large {
