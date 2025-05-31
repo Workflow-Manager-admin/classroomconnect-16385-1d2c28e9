@@ -123,6 +123,21 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+/* Additional override for modals & cta-type button backgrounds where light blue is referenced inline or in modal */
+.cc-btn-lightblue,
+.cc-modal-btn-cta {
+  background: #60A9FF !important;
+  color: #001f4d !important;
+}
+
+.cc-btn-lightblue:hover,
+.cc-modal-btn-cta:hover,
+.cc-btn-lightblue:focus,
+.cc-modal-btn-cta:focus {
+  background: #3f8deb !important;
+  color: #fff !important;
+}
 .cc-footer-content {
   max-width: 1200px;
   margin: 0 auto;
