@@ -530,7 +530,15 @@ function ClassroomPanel({
           style={{
             color: NAVY,
             background: secondary,
-            marginRight: 10
+            marginRight: 10,
+            border: "3px solid var(--primary-blue)",
+            borderRadius: "28px",
+            textTransform: "uppercase",
+            fontWeight: 800,
+            padding: "13px 24px",
+            fontSize: "1.10em",
+            letterSpacing: "0.6px",
+            boxShadow: "0 1.5px 7px 0 rgba(115,147,179,0.10)"
           }}
         >
           ⬅ Exit Classroom
