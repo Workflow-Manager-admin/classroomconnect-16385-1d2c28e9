@@ -329,19 +329,19 @@ function ClassCard({ classroom, color, onClick }) {
       style={{
         border: "0px solid #fff5",
         background: color,
-        color: "#21313f",
+        color: NAVY,
         cursor: "pointer"
       }}
       onClick={onClick}
       aria-label={"Open " + classroom.name}
     >
-      <div style={{ fontWeight: 700, fontSize: "1.2rem", marginBottom: 6 }}>
+      <div style={{ fontWeight: 700, fontSize: "1.2rem", marginBottom: 6, color: NAVY }}>
         {classroom.name}
       </div>
-      <div style={{ fontWeight: 500, letterSpacing: 2 }}>
+      <div style={{ fontWeight: 500, letterSpacing: 2, color: NAVY }}>
         #{classroom.code}
       </div>
-      <div style={{ fontSize: 13, color: "#4b5" }}>
+      <div style={{ fontSize: 13, color: NAVY }}>
         Joined{" "}
         {new Date(classroom.joinedAt).toLocaleDateString([], {
           month: "short",
