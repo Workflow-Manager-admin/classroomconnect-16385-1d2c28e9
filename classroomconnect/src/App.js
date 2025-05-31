@@ -1188,13 +1188,10 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
       );
     case "calls":
       return (
-        <div>
-          <h2 style={{ marginTop: 0, color: "#234492" }}>Audio / Video Calls</h2>
-          <div style={{ background: "#eaf7ff", borderRadius: 12, padding: 18, color: "#235a73" }}>
-            Initiate group calls for <b>{classroom.name}</b> here.
-            <div style={{ fontSize: 13, color: "#548ead", marginTop: 12, opacity: 0.68 }}>(AV call functionality stub)</div>
-          </div>
-        </div>
+        <CallsPanel
+          classroom={classroom}
+          loggedInUser={loggedInUser}
+        />
       );
     case "services":
       return (
