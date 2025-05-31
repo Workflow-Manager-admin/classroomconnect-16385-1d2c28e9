@@ -237,8 +237,8 @@ function Dashboard({
   return (
     <div className="cc-dash-bg">
       <div className="cc-hero">
-        <h1 style={{ color: "white", marginBottom: 8 }}>Welcome!</h1>
-        <p className="cc-blurb" style={{ marginBottom: 25 }}>
+        <h1 style={{ color: NAVY, marginBottom: 8 }}>Welcome!</h1>
+        <p className="cc-blurb" style={{ marginBottom: 25, color: NAVY }}>
           Playful, easy virtual classrooms for everyone. Create a new class, join one with a code, or access your classes.
         </p>
       </div>
@@ -288,7 +288,7 @@ function Dashboard({
         <div
           style={{
             marginBottom: 28,
-            color: "#333",
+            color: NAVY,
             fontWeight: 600,
             marginLeft: 10
           }}
