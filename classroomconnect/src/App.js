@@ -145,8 +145,23 @@ function App() {
         <div className="app-container-centered">
           <div className="main-white-container">
             <header className="app-logo-header" style={{ marginBottom: 32, fontWeight: 800 }}>
-              <span className="app-logo-emoji" role="img" aria-label="Backpack" style={{ marginRight: 10, fontSize: 28 }}>🎒</span>
-              ClassroomConnect
+              {/* Modern book SVG icon for logo */}
+              <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
+                <svg
+                  width="30"
+                  height="30"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{ display: 'block' }}
+                >
+                  <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2"/>
+                  <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2"/>
+                  <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7"/>
+                  <circle cx="16" cy="26" r="1.1" fill="#4F8CFF"/>
+                </svg>
+              </span>
+              Classroom Insider
             </header>
             <form onSubmit={handleRegistration} className="register-form">
               <input
@@ -180,8 +195,23 @@ function App() {
       <div className="app-container-centered">
         <div className="main-white-container">
           <header className="app-logo-header" style={{ marginBottom: 26 }}>
-            <span className="app-logo-emoji" role="img" aria-label="Backpack" style={{ marginRight: 10, fontSize: 28 }}>🎒</span>
-            ClassroomConnect
+            {/* Modern book SVG icon for logo */}
+            <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ display: 'block' }}
+              >
+                <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2"/>
+                <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2"/>
+                <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7"/>
+                <circle cx="16" cy="26" r="1.1" fill="#4F8CFF"/>
+              </svg>
+            </span>
+            Classroom Insider
           </header>
 
           {/* Top row: Create, Input, Join */}
@@ -258,7 +288,7 @@ function App() {
           {/* Footer inside main container */}
           <footer className="main-footer-bar">
             <div style={{ display: "flex", gap: 8, alignItems: "center", width: "100%", justifyContent: "space-between", fontSize: "1.01em", color: "#475788" }}>
-              <span style={{ fontWeight: 600 }}>ClassroomConnect</span>
+              <span style={{ fontWeight: 600 }}>Classroom Insider</span>
               <span style={{ fontSize: "0.98rem" }}>
                 &copy; {new Date().getFullYear()}
               </span>
