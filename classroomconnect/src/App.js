@@ -628,9 +628,6 @@ function TabButton({ label, active, onClick }) {
       style={{
         textTransform: "uppercase",
         fontWeight: 800,
-        border: active
-          ? "3px solid var(--accent)"
-          : "3px solid var(--primary-blue)",
         borderRadius: "23px",
         boxShadow: active
           ? "0 1.5px 7px 0 rgba(6,214,160,0.11)"
