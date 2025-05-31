@@ -34,7 +34,9 @@ const themeVars = {
   "--card-radius": "18px",
   "--navy": NAVY,
   "--text-color": NAVY,
-  "--text-secondary": "#406495"
+  "--text-secondary": "#406495",
+  "--primary-blue": babyBlue,
+  "--primary-blue-dark": "#4a6485"
 };
 
 const applyTheme = () => {
