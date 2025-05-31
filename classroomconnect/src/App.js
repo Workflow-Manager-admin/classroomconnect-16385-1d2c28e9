@@ -382,15 +382,11 @@ function Dashboard({
             type="button"
             onClick={onCreate}
             style={{
-              background: babyBlue,
-              color: "#fff",
-              textTransform: "uppercase",
-              fontWeight: 800,
-              border: "3px solid var(--orange)",
-              borderRadius: "28px",
-              padding: "16px 0",
+              borderRadius: "32px",
+              fontWeight: 900,
               letterSpacing: "1px",
-              boxShadow: "0 1.5px 7px 0 rgba(115,147,179,0.13)"
+              textTransform: "uppercase"
+              // All color, background, border, shadow handled in class
             }}
           >
             <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.17em', verticalAlign: "-0.08em" }}>➕</span>
@@ -417,15 +413,12 @@ function Dashboard({
               className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
               type="submit"
               style={{
-                background: babyBlue,
-                color: "#fff",
+                borderRadius: "32px",
                 marginTop: 0,
-                border: "3px solid var(--accent)",
-                borderRadius: "28px",
-                padding: "16px 0",
-                fontWeight: 800,
+                fontWeight: 900,
                 textTransform: "uppercase",
-                boxShadow: "0 1.5px 7px 0 rgba(6,214,160,0.08)"
+                letterSpacing: "1px"
+                // All color, background, border, shadow handled in class
               }}
             >
               <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.05em', verticalAlign: "-0.05em" }}>🚪</span>
