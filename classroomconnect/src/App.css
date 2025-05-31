@@ -414,17 +414,107 @@ body, .app-bg-contrast {
   width: 9px;
 }
 
-/* ------ Chat UI (classroom) ------ */
-.chat-messages-panel {
-  scrollbar-width: thin;
-  scrollbar-color: #b4cadc #f3f6fe;
+/* ------ Video/AV Call UI ------ */
+.av-video-grid {
+  min-height: 110px;
+  width: 100%;
+  margin: 0 auto 0 auto;
+  max-width: 970px;
+  background: #e7f2fa;
+  border-radius: 15px;
+  padding: 11px;
 }
 
-.chat-messages-panel::-webkit-scrollbar {
-  width: 8px;
-  background: #f7f9fb;
+/* Animates sim "peer video" color blocks */
+@keyframes pulse-peer {
+  0% {
+    background: radial-gradient(circle, #ffd966 67%, #ffeba2 94%, transparent 100%);
+  }
+  100% {
+    background: radial-gradient(circle, #ffefad 59%, #ffd966 96%, transparent 100%);
+  }
 }
-.chat-messages-panel::-webkit-scrollbar-thumb {
-  background: #c7d4e7;
-  border-radius: 8px;
+
+/* Controls bar */
+.av-controls-bar {
+  width: 100%;
+  margin-top: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
 }
+
+/* Icon buttons for AV controls */
+.av-control-icon-btn {
+  border-radius: 99em;
+  padding: 0.77em 0.82em;
+  border: 2.3px solid #ffeaa9;
+  background: #fff;
+  color: #234492;
+  box-shadow: 0 2.1px 9px 0 rgba(210,200,80,0.06);
+  font-size: 25px;
+  font-weight: 900;
+  cursor: pointer;
+  outline: none;
+  margin: 0 2px;
+  transition: background 0.16s, color 0.16s, border 0.16s;
+  position: relative;
+  min-width: 49px;
+  min-height: 49px;
+}
+.av-control-icon-btn:focus,
+.av-control-icon-btn:hover {
+  background: #fff7e4;
+  color: #197ac8;
+  border: 2.7px solid #FFD166;
+}
+
+/* Mic muted icon overlay */
+.av-mic-muted-icon {
+  font-size: 21px;
+  color: #e42622;
+  font-weight: 900;
+  opacity: 0.85;
+}
+
+/* User count bar */
+.av-user-count {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  border-radius: 7px;
+  font-size: 15px;
+  background: #fef9df;
+  color: #b2730b;
+  padding: 5px 15px;
+  opacity: 1;
+  box-shadow: none;
+}
+
+@media (max-width: 730px) {
+  .av-video-grid {
+    grid-template-columns: 1fr !important;
+    padding: 6px;
+    min-width: unset;
+    max-width: 99vw;
+    min-height: 70px;
+  }
+  .av-controls-bar {
+    flex-wrap: wrap;
+    gap: 11px;
+  }
+}
+
+@media (max-width: 450px) {
+  .av-control-icon-btn {
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 19px;
+  }
+}
+
+.av-video-item {
+  box-sizing: border-box;
+}
+
