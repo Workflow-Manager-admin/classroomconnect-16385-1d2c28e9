@@ -651,6 +651,32 @@ function ServicesPanel({ classroom, loggedInUser, onLeaveClassroom }) {
   // GROUP PROJECT SETUP FLOW
   // Step 1: Group size
   function GroupProjectSetup() {
+    // ---- HOOKS must be called UNCONDITIONALLY ----
+
+    // For Step 3 (manual), ensure manualGroups initialized with correct groupCount
+    React.useEffect(() => {
+      if (
+        gpStep === 3 &&
+        groupMode === "manual" &&
+        Object.keys(manualGroups).length !== groupCount
+      ) {
+        let groups = {};
+        for (let i = 0; i < groupCount; ++i) groups[i + 1] = [];
+        setManualGroups(groups);
+      }
+      // eslint-disable-next-line
+    }, [gpStep, groupMode, groupCount]);
+
+    // For Step 5 (task mgmt), ensure groupTasks entry exists
+    React.useEffect(() => {
+      if (gpStep === 5 && pickedGroup && !groupTasks[pickedGroup]) {
+        setGroupTasks(prev => ({ ...prev, [pickedGroup]: [] }));
+      }
+      // eslint-disable-next-line
+    }, [gpStep, pickedGroup]);
+
+    // -------------------------------------
+
     if (gpStep === 0) {
       // Not started, show entry
       return (
@@ -741,15 +767,6 @@ function ServicesPanel({ classroom, loggedInUser, onLeaveClassroom }) {
     }
     // Step 3: Manual group assignment
     if (gpStep === 3 && groupMode === "manual") {
-      // Assign users to groups: drag & drop simulated with select lists
-      // Initialize manualGroups if not yet
-      React.useEffect(()=>{
-        if(Object.keys(manualGroups).length === 0){
-          let groups = {};
-          for (let i = 0; i < groupCount; ++i) groups[i+1] = [];
-          setManualGroups(groups);
-        }
-      },[groupCount]); // eslint-disable-line
       // Unassigned members (remove all currently assigned)
       const assignedMembers = Object.values(manualGroups).flat();
       const unassigned = classMembers.filter(m=>!assignedMembers.includes(m));
@@ -903,10 +920,6 @@ function ServicesPanel({ classroom, loggedInUser, onLeaveClassroom }) {
     }
     // Step 5: Group Task Management UI
     if (gpStep === 5 && pickedGroup) {
-      // Init groupTasks for group if not exists, only display picked group
-      React.useEffect(()=>{
-        if(!groupTasks[pickedGroup]) setGroupTasks(prev=>({...prev,[pickedGroup]:[]}));
-      },[pickedGroup]); // eslint-disable-line
       function handleAddTask(e){
         e.preventDefault();
         if(!newTaskName) return;
