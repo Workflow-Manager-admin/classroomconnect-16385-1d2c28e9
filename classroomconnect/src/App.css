@@ -81,6 +81,10 @@ body, .app-bg-contrast {
   /* (Removed for vertical re-layout) */
   display: none !important;
 }
+/* Ensure backwards compatibility for references in App.js, if any */
+.round-action-form {
+  display: none;
+}
 
 /* New left-vertical-actions: stack Create, Enter Code, Join vertically, left-aligned */
 .left-vertical-actions {
