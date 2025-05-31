@@ -636,60 +636,7 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
 }
 
 
-function ClassCard({ classroom, color }) {
-  return (
-    <button
-      className="square-classcard"
-      tabIndex={0}
-      style={{
-        background: color || "var(--orange)",
-        color: "#233850",
-        borderRadius: "20px",
-        minWidth: 110,
-        minHeight: 110,
-        maxWidth: 148,
-        maxHeight: 148,
-        margin: "0 0px",
-        boxShadow: "0 2.5px 9px 0 rgba(180,170,120,0.10)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "var(--font-main)",
-        fontWeight: 800,
-        cursor: "pointer",
-        border: "none",
-        outline: "none",
-      }}
-      aria-label={"Open " + classroom.name}
-    >
-      <div style={{
-        fontWeight: 900,
-        fontSize: "1.12rem",
-        marginBottom: 6,
-        color: "#1a2c45",
-        letterSpacing: "0.5px",
-        wordBreak: "break-word",
-        textAlign: "center"
-      }}>
-        {classroom.name}
-      </div>
-      <div style={{
-        fontWeight: 700,
-        fontSize: "1.01rem",
-        color: "#5275af"
-      }}>
-        #{classroom.code}
-      </div>
-      <div style={{ fontSize: 13, color: "#548e74", fontWeight: 600 }}>
-        Joined {new Date(classroom.joinedAt).toLocaleDateString([], {
-          month: "short",
-          day: "numeric"
-        })}
-      </div>
-    </button>
-  );
-}
+/* Removed duplicate old ClassCard definition (see updated version above with onSelect prop) */
 
 function CreateClassroomModal({ onSubmit, onClose }) {
   const [name, setName] = useState("");
