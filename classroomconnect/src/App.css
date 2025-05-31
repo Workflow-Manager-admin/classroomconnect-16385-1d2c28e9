@@ -183,6 +183,67 @@ body,
   margin-bottom: 38px;
 }
 
+/* New flex row to ensure Create, Enter Code, and Join are same width and aligned */
+.cc-main-cta-flexrow {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 18px;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Make the form stretch, so input and Join btn share width+align with Create */
+.cc-main-cta-flexrow > button,
+.cc-main-cta-flexrow > form {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Stack input and Join button vertically inside the form, both same width as Create */
+.cc-main-cta-flexrow .cc-main-cta-join-form {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin: 0;
+  width: 100%;
+}
+
+.cc-main-cta-flexrow .cc-main-big-input,
+.cc-main-cta-flexrow .cc-btn-join {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure button and input are identical width in all cases */
+.cc-main-cta-flexrow .cc-btn-create,
+.cc-main-cta-flexrow .cc-main-big-input,
+.cc-main-cta-flexrow .cc-btn-join {
+  max-width: 100%;
+  min-width: 0;
+  border-radius: var(--cta-radius) !important;
+  font-size: 1.13em;
+  font-family: inherit;
+}
+
+@media (max-width: 700px) {
+  .cc-main-cta-flexrow {
+    flex-direction: column;
+    gap: 14px;
+    max-width: 99vw;
+  }
+  .cc-main-cta-flexrow > button,
+  .cc-main-cta-flexrow > form {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
 .cc-main-cta-center .cc-btn {
   width: 100%;
   min-width: 210px;
