@@ -1248,7 +1248,10 @@ function CallsPanel({ username, classCode }) {
 
 // ========== STYLES: CSS-IN-JS INJECTION ==========
 const globalCSS = `
-/* === Custom Styles for ClassroomConnect === */
+/* === Custom Styles for ClassroomConnect + Navy Text Override === */
+body, .cc-main-bg, .cc-dashboard-wrap, .cc-classroom-header, .cc-classcard, .cc-card, .cc-btn, .cc-input, h1, h2, h3, h4, h5, h6, p, span, label, select, option, .cc-class-tab-btn, .cc-chat-msg, .cc-projects-heading, .cc-empty-text, .cc-bulletin-empty, .cc-notebook-empty, .cc-note-item, .cc-team-members {
+  color: var(--navy, #001f4d) !important;
+}
 
 body, .cc-main-bg {
   background: var(--main-bg, #A7C7E7);
