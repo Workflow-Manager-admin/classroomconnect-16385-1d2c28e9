@@ -365,48 +365,41 @@ function Dashboard({
         </p>
       </div>
       <div className="cc-dashboard-wrap">
-        <form
-          className="cc-card cc-create-join"
-          onSubmit={handleJoin}
-          style={{ flexDirection: "row", gap: 10, marginBottom: 20 }}
-        >
+        <div className="cc-main-cta-center">
           <button
-            className="cc-btn cc-btn-large"
+            className="cc-btn cc-btn-large cc-main-big-btn"
             type="button"
-            style={{ background: funPalette[0], color: "#233", flex: 1 }}
             onClick={onCreate}
           >
-            <span role="img" aria-label="add" style={{ marginRight: 8 }}>
-              ➕
-            </span>
+            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.35em' }}>➕</span>
             Create Classroom
           </button>
-          <input
-            className="cc-input"
-            placeholder="Enter 6-digit code"
-            maxLength={6}
-            minLength={6}
-            required
-            style={{ width: 120, flex: "none", textAlign: "center" }}
-            value={joinCode}
-            onChange={(e) => setJoinCode(e.target.value.replace(/[^\d]/g, ""))}
-          />
-          <button
-            className="cc-btn cc-btn-large"
-            style={{
-              background: funPalette[1],
-              color: "#233",
-              flex: 1,
-              minWidth: 150
-            }}
-            type="submit"
+          <form
+            onSubmit={handleJoin}
+            className="cc-main-cta-join-form"
+            autoComplete="off"
+            style={{width:'100%'}}
           >
-            <span role="img" aria-label="join" style={{ marginRight: 8 }}>
-              🚪
-            </span>
-            Join Classroom
-          </button>
-        </form>
+            <input
+              className="cc-input cc-main-big-input"
+              placeholder="Enter 6-digit code"
+              maxLength={6}
+              minLength={6}
+              required
+              style={{ textAlign: "center" }}
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.replace(/[^\d]/g, ""))}
+            />
+            <button
+              className="cc-btn cc-btn-large cc-main-big-btn"
+              style={{ marginTop: '5px' }}
+              type="submit"
+            >
+              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.25em' }}>🚪</span>
+              Join Classroom
+            </button>
+          </form>
+        </div>
         <div
           style={{
             marginBottom: 28,
