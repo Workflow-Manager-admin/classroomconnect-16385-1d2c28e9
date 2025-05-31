@@ -1729,7 +1729,9 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
                 <option value="average">Average 🔔</option>
                 <option value="low">Low 📝</option>
               </select>
-              <label style={{ marginLeft: 17, fontWeight: 700, color: "#297" }}>Reminder:</label>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 13, marginTop: -5 }}>
+              <label style={{ fontWeight: 700, color: "#297", minWidth: 84 }}>Reminder:</label>
               <input
                 className="white-input"
                 type="datetime-local"
@@ -1738,7 +1740,7 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
                 style={{ width: 178, fontWeight: 600, color: "#125" }}
                 min={new Date(Date.now() - 60000).toISOString().slice(0, 16)}
               />
-              <span style={{ fontSize: 14.5, color: "#b99" }}>(optional)</span>
+              <span style={{ fontSize: 14.5, color: "#b99", marginLeft: 5 }}>(optional)</span>
             </div>
             <div style={{ display: "flex", gap: 13, marginTop: 10 }}>
               <button
