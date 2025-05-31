@@ -470,13 +470,11 @@ function ClassCard({ classroom, color, onClick }) {
       className="cc-card cc-classcard"
       tabIndex={0}
       style={{
-        border: "3px solid #fbb040",
         background: "linear-gradient(135deg,#FFD795 80%,#fff6c1 100%)",
         color: "#001f4d",
         cursor: "pointer",
         boxShadow:
           "0 6px 24px 0 rgba(220,187,93,0.13), 0 2px 16px 0 rgba(115,147,179,0.10)",
-        borderRadius: "22px",
         padding: "24px 20px 18px 20px",
         gap: "7px",
         minWidth: 220,
@@ -544,8 +542,6 @@ function ClassroomPanel({
             color: NAVY,
             background: secondary,
             marginRight: 10,
-            border: "3px solid var(--primary-blue)",
-            borderRadius: "28px",
             textTransform: "uppercase",
             fontWeight: 800,
             padding: "13px 24px",
