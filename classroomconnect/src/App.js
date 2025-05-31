@@ -180,10 +180,11 @@ function App() {
 
   // Dashboard or classroom
   return (
-    <div className="cc-main-bg">
-      <nav className="cc-navbar">
+    <div className="cc-main-bg app-expanded-bg">
+      {/* Modernized Top Navigation */}
+      <nav className="cc-navbar cc-navbar-modern">
         <div className="cc-logo" style={{ color: NAVY }}>
-          <span className="cc-logo-img" role="img" style={{ marginRight: 5 }}>
+          <span className="cc-logo-img" role="img" style={{ marginRight: 7 }}>
             🎒
           </span>
           ClassroomConnect
@@ -196,24 +197,40 @@ function App() {
         </div>
       </nav>
 
-      {dashboardView ? (
-        <Dashboard
-          classrooms={classrooms}
-          onCreate={handleCreateClassroom}
-          onJoin={handleJoinClassroom}
-          openClassroom={openClassroom}
-          funPalette={funPalette}
-        />
-      ) : (
-        <ClassroomPanel
-          classroom={
-            classrooms.find((c) => c.code === selectedClassroom) || {}
-          }
-          username={username}
-          userCode={userCode}
-          leaveClassroom={leaveClassroom}
-        />
-      )}
+      {/* Main Container */}
+      <main className="cc-main-container-expanded">
+        {dashboardView ? (
+          <Dashboard
+            classrooms={classrooms}
+            onCreate={handleCreateClassroom}
+            onJoin={handleJoinClassroom}
+            openClassroom={openClassroom}
+            funPalette={funPalette}
+          />
+        ) : (
+          <ClassroomPanel
+            classroom={
+              classrooms.find((c) => c.code === selectedClassroom) || {}
+            }
+            username={username}
+            userCode={userCode}
+            leaveClassroom={leaveClassroom}
+          />
+        )}
+      </main>
+
+      {/* Modern Footer */}
+      <footer className="cc-footer-expanded">
+        <div className="cc-footer-content">
+          <span style={{ fontWeight: 600, color: NAVY }}>
+            ClassroomConnect 
+          </span>
+          <span className="cc-footer-spacer" />
+          <span style={{ color: "#406495", fontSize: "0.98rem" }}>
+            Playful learning, connected! &copy; {new Date().getFullYear()}
+          </span>
+        </div>
+      </footer>
     </div>
   );
 }
