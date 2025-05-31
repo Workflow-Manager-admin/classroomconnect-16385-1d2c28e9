@@ -335,6 +335,15 @@ body,
 .cc-classcards-grid {
   margin-top: 8px;
   width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding-bottom: 18px;
+}
+/* Optionally allow for grid fallback via a cc-classcards-grid.is-grid class */
+.cc-classcards-grid.is-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
   gap: 30px;
