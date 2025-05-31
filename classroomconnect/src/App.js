@@ -317,7 +317,7 @@ function CreateClassroomModal({ onSubmit, onClose }) {
             max={99}
             style={{ width: 90, marginBottom: 14 }}
             value={numMembers}
-            onChange={(e) => setNumMembers(e.target.value.replace(/\D,""))}
+            onChange={(e) => setNumMembers(e.target.value.replace(/\D/g, ""))}
           />
           <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
             <button
