@@ -148,6 +148,81 @@ function App() {
     setClassDetailTab("chats");
   }
 
+  // PUBLIC_INTERFACE
+  function CreateClassroomModal({ onSubmit, onClose }) {
+    const [name, setName] = useState("");
+    const [numMembers, setNumMembers] = useState(5);
+
+    return (
+      <div className="modal-outer-bg">
+        <div className="modal-white-card">
+          <button
+            type="button"
+            aria-label="Close create classroom modal"
+            className="modal-close-btn"
+            onClick={onClose}
+          >✖</button>
+          <h2 style={{ color: NAVY, marginTop: 0, marginBottom: 18, fontWeight: 800 }}>Create a Classroom</h2>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              if (!name || +numMembers < 1) return;
+              onSubmit(name, +numMembers);
+            }}
+          >
+            <label style={{ color: NAVY, fontWeight: 500 }}>Classroom Name</label>
+            <input
+              className="white-input"
+              required
+              maxLength={36}
+              placeholder="Cool Classroom Name"
+              style={{ width: "98%", marginBottom: 16 }}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              autoFocus
+            />
+            <label style={{ color: NAVY, fontWeight: 500 }}>Number of Members</label>
+            <input
+              className="white-input"
+              type="number"
+              required
+              min={1}
+              max={99}
+              style={{ width: 90, marginBottom: 15 }}
+              value={numMembers}
+              onChange={e => setNumMembers(e.target.value.replace(/\D/g, ""))}
+            />
+            <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
+              <button
+                className="main-action-btn main-action-btn-create"
+                style={{
+                  flex: 1,
+                }}
+                type="submit"
+              >
+                Create
+              </button>
+              <button
+                className="main-action-btn"
+                style={{
+                  background: "#F5F8FA",
+                  color: NAVY,
+                  border: "2px solid #e6ecf5",
+                  fontWeight: 700,
+                  flex: 1,
+                }}
+                type="button"
+                onClick={onClose}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   // Handle back from classroom detail
   function handleDetailBack() {
     setSelectedClassroom(null);
