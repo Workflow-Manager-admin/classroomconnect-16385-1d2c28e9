@@ -847,13 +847,17 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
       );
     case "services":
       return (
-        <div>
-          <h2 style={{ marginTop: 0, color: "#19649e" }}>Classroom Services</h2>
-          <div style={{ background: "#EFFFEC", borderRadius: 12, padding: 18, color: "#1c6f46" }}>
-            Services and collaborative tools for <b>{classroom.name}</b> go here.
-            <div style={{ fontSize: 13, color: "#137b3b", marginTop: 12, opacity: 0.65 }}>(Extensions & project management stub)</div>
-          </div>
-        </div>
+        <ServicesPanel
+          classroom={classroom}
+          loggedInUser={loggedInUser}
+          onLeaveClassroom={(classCode) => {
+            // Remove classroom from local storage and "redirect" to dashboard
+            let myClassrooms = JSON.parse(localStorage.getItem("myClassrooms") || "[]");
+            myClassrooms = myClassrooms.filter(c => c.code !== classCode);
+            localStorage.setItem("myClassrooms", JSON.stringify(myClassrooms));
+            window.location.reload(); // simple full reload for dashboard landing
+          }}
+        />
       );
     default:
       return (
