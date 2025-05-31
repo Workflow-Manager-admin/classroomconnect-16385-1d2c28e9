@@ -171,7 +171,7 @@ function App() {
     return (
       <div className="cc-main-bg">
         <nav className="cc-navbar">
-          <div className="cc-logo" style={{ color: NAVY }}>ClassroomConnect</div>
+          <div className="cc-logo">ClassroomConnect</div>
         </nav>
         <div className="cc-register-wrap">
           <div className="cc-card cc-register-card">
@@ -434,20 +434,20 @@ function ClassCard({ classroom, color, onClick }) {
       tabIndex={0}
       style={{
         border: "0px solid #fff5",
-        background: color,
-        color: NAVY,
+        background: "#FFD166",
+        color: "#001f4d",
         cursor: "pointer"
       }}
       onClick={onClick}
       aria-label={"Open " + classroom.name}
     >
-      <div style={{ fontWeight: 700, fontSize: "1.2rem", marginBottom: 6, color: NAVY }}>
+      <div style={{ fontWeight: 700, fontSize: "1.2rem", marginBottom: 6 }}>
         {classroom.name}
       </div>
-      <div style={{ fontWeight: 500, letterSpacing: 2, color: NAVY }}>
+      <div style={{ fontWeight: 500, letterSpacing: 2 }}>
         #{classroom.code}
       </div>
-      <div style={{ fontSize: 13, color: NAVY }}>
+      <div style={{ fontSize: 13 }}>
         Joined{" "}
         {new Date(classroom.joinedAt).toLocaleDateString([], {
           month: "short",
@@ -556,10 +556,6 @@ function TabButton({ label, active, onClick }) {
       }
       onClick={onClick}
       type="button"
-      style={{
-        color: NAVY,
-        background: active ? "var(--main-secondary)" : "transparent"
-      }}
     >
       {label}
     </button>
