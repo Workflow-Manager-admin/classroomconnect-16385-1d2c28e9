@@ -359,13 +359,13 @@ body {
 .cc-main-big-btn {
   width: 240px;
   max-width: 90vw;
-  background: #60A9FF; /* New playful lighter blue */
+  background: #7393B3;
   color: #fff;
   font-size: 1.08rem;
   border-radius: 999px !important;
   padding: 13px 0;
   font-weight: 700;
-  box-shadow: 0 3px 16px 0 #b8ccee2e, 0 1px 6px 0 #cfeeef13 inset;
+  box-shadow: 0 3px 16px 0 #a7bbd22e, 0 1px 6px 0 #a7bbd213 inset;
   letter-spacing: .02em;
   margin-bottom: 6px;
   margin-top: 0;
@@ -374,9 +374,9 @@ body {
 
 .cc-main-big-btn:hover,
 .cc-main-big-btn:focus {
-  background: #3f8deb; /* slightly darker blue for hover/focus */
+  background: #4a6485;
   transform: translateY(-2px) scale(1.032);
-  box-shadow: 0 8px 28px #a7c7e7bb, 0 2px 10px #b8ccee11 inset;
+  box-shadow: 0 8px 28px #7393b3bb, 0 2px 10px #a7bbd211 inset;
   color: #fff;
 }
 
@@ -396,7 +396,7 @@ body {
   transition: border .14s;
 }
 .cc-main-big-input:focus {
-  border: 2px solid #7eb4f7;
+  border: 2px solid #7393B3;
   background: #f5faff;
 }
 
