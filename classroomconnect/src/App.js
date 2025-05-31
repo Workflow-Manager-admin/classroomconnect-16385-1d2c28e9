@@ -275,7 +275,7 @@ function CreateClassroomModal({ onSubmit, onClose }) {
   return (
     <div style={{
       position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-      background: "rgba(74,153,211,0.10)", display: "flex",
+      background: "rgba(115,147,179,0.12)", display: "flex",
       alignItems: "center", justifyContent: "center", zIndex: 9999
     }}>
       <div className="cc-card" style={{
