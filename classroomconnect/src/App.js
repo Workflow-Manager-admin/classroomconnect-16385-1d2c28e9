@@ -317,14 +317,34 @@ function CreateClassroomModal({ onSubmit, onClose }) {
           <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
             <button
               className="cc-btn cc-btn-large"
-              style={{ background: babyBlue, color: NAVY, flex:1 }}
+              style={{
+                background: babyBlue,
+                color: NAVY,
+                flex: 1,
+                textTransform: "uppercase",
+                fontWeight: 800,
+                border: "3px solid var(--accent)",
+                borderRadius: "30px",
+                boxShadow: "0 2px 6px 0 rgba(6,214,160,0.09)",
+                padding: "13px 0"
+              }}
               type="submit"
             >
               Create
             </button>
             <button
               className="cc-btn cc-btn-large"
-              style={{ background: pink, color: NAVY, flex:1 }}
+              style={{
+                background: pink,
+                color: NAVY,
+                flex: 1,
+                textTransform: "uppercase",
+                fontWeight: 800,
+                border: "3px solid #FDB8EE",
+                borderRadius: "30px",
+                boxShadow: "0 2px 6px 0 rgba(255,194,255,0.13)",
+                padding: "13px 0"
+              }}
               type="button"
               onClick={onClose}
             >
