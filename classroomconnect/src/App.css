@@ -75,10 +75,10 @@ body {
 /* Modernized NAVBAR   */
 /* =================== */
 .cc-navbar-modern {
-  background: linear-gradient(90deg, #A7C7E7 65%, #c6deff 100%);
+  background: linear-gradient(90deg, #7393B3 65%, #9eb5d2 100%);
   min-height: 56px; /* Reduced from 68px */
-  border-bottom: 2.5px solid #c3e0fd;
-  box-shadow: 0 2px 10px 0 #b2caf73a;
+  border-bottom: 2.5px solid #9eb5d2;
+  box-shadow: 0 2px 10px 0 #b6c6de3a;
   position: sticky;
   top: 0;
   width: 100vw;
