@@ -636,6 +636,23 @@ function TabButton({ label, active, onClick }) {
       }
       onClick={onClick}
       type="button"
+      style={{
+        textTransform: "uppercase",
+        fontWeight: 800,
+        border: active
+          ? "3px solid var(--accent)"
+          : "3px solid var(--primary-blue)",
+        borderRadius: "23px",
+        boxShadow: active
+          ? "0 1.5px 7px 0 rgba(6,214,160,0.11)"
+          : "0 1.5px 7px 0 rgba(115,147,179,0.08)",
+        padding: "12px 18px",
+        background: active ? "var(--primary-blue)" : "var(--orange)",
+        color: active ? "white" : "var(--navy)",
+        fontSize: "1.06em",
+        letterSpacing: "0.7px",
+        marginBottom: "1px"
+      }}
     >
       {label}
     </button>
