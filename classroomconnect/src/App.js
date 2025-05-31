@@ -143,12 +143,12 @@ function App() {
     return (
       <div className="cc-main-bg">
         <nav className="cc-navbar">
-          <div className="cc-logo">ClassroomConnect</div>
+          <div className="cc-logo" style={{ color: NAVY }}>ClassroomConnect</div>
         </nav>
         <div className="cc-register-wrap">
           <div className="cc-card cc-register-card">
-            <h2>Welcome to ClassroomConnect!</h2>
-            <p>
+            <h2 style={{ color: NAVY }}>Welcome to ClassroomConnect!</h2>
+            <p style={{ color: NAVY }}>
               Create or join virtual classrooms! Enter your nickname to get
               started.
             </p>
@@ -164,7 +164,7 @@ function App() {
                 style={{ width: "100%" }}
                 autoFocus
               />
-              <div className="cc-ucode-label">
+              <div className="cc-ucode-label" style={{ color: NAVY }}>
                 <span>Your unique code: </span>
                 <span className="cc-ucode">{userCode}</span>
               </div>
@@ -363,18 +363,18 @@ function ClassroomPanel({
   return (
     <div className="cc-classroom-bg">
       <div className="cc-classroom-header">
-        <button className="cc-btn cc-btn-naked" onClick={leaveClassroom}>
+        <button className="cc-btn cc-btn-naked" onClick={leaveClassroom} style={{ color: NAVY }}>
           ⬅ Back
         </button>
         <div
           className="cc-crumb-title"
           style={{
-            color: classroom.color || babyBlue
+            color: NAVY
           }}
         >
           {classroom.name || "Classroom"}
         </div>
-        <span className="cc-classcode">#{classroom.code}</span>
+        <span className="cc-classcode" style={{ color: NAVY }}>#{classroom.code}</span>
       </div>
       <div className="cc-class-tabs-bar">
         <TabButton
