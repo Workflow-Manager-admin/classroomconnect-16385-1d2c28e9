@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
-// Util for random unique code
+// Utility for random unique code
 function generateCode(length = 6, alphanumeric = false) {
   const chars = alphanumeric
     ? "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
@@ -12,45 +12,48 @@ function generateCode(length = 6, alphanumeric = false) {
   return code;
 }
 
-/**
- * ===== STYLES =====
- * Update navy blue for all text
- */
+// Brand colors palette
 const NAVY = "#001f4d";
-const babyBlue = "#7393B3";
-const accent = "#06D6A0";
+const brandAccent = "#06D6A0";
 const secondary = "#FFD166";
-const pink = "#FCC2FF";
-const orange = "#FFD795";
-const purple = "#9DF6FF";
-const funPalette = [babyBlue, pink, orange, purple, secondary, accent];
+const funPalette = [
+  "#7E9CB2", // blue
+  "#FCC2FF", // pink
+  "#FFD795", // orange-light
+  "#9DF6FF", // cyan
+  "#FFD166", // yellow-accent
+  "#06D6A0", // green-accent
+];
 
 const themeVars = {
-  "--main-bg": babyBlue,
-  "--main-accent": accent,
+  "--main-bg": "#F3F6FE",
+  "--main-accent": brandAccent,
   "--main-secondary": secondary,
   "--border-radius": "22px",
-  "--large-radius": "30px",
-  "--card-radius": "18px",
+  "--large-radius": "36px",
+  "--card-radius": "22px",
   "--navy": NAVY,
   "--text-color": NAVY,
-  "--text-secondary": "#406495",
-  "--primary-blue": babyBlue,
-  "--primary-blue-dark": "#4a6485"
+  "--primary-blue": "#7E9CB2",
+  "--primary-blue-dark": "#4a6485",
+  "--white": "#fff",
 };
 
-const applyTheme = () => {
-  for (let [cssVar, value] of Object.entries(themeVars))
-    document.documentElement.style.setProperty(cssVar, value);
-};
+function applyTheme() {
+  for (let [k, v] of Object.entries(themeVars)) {
+    document.documentElement.style.setProperty(k, v);
+  }
+}
 applyTheme();
 
-// ====== MAIN APP CONTEXT ======
+/**
+ * PUBLIC_INTERFACE
+ * Main App with single container design.
+ */
 function App() {
   // Registration simulation (actual prod would use backend/auth)
   const [userCode, setUserCode] = useState(
-    localStorage.getItem("userCode") ||
-      generateCode(8, true)
+    localStorage.getItem("userCode") || generateCode(8, true)
   );
   const [username, setUsername] = useState(
     localStorage.getItem("username") || ""
@@ -61,13 +64,6 @@ function App() {
   const [classrooms, setClassrooms] = useState(
     JSON.parse(localStorage.getItem("myClassrooms") || "[]")
   );
-  const [dashboardView, setDashboardView] = useState(
-    true
-  );
-  const [selectedClassroom, setSelectedClassroom] = useState(null);
-
-  // Create-Classroom Modal state
-  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
 
   useEffect(() => {
     applyTheme();
@@ -94,32 +90,34 @@ function App() {
     localStorage.setItem("username", username);
   };
 
-  // Dashboard handlers
-  const handleJoinClassroom = (code) => {
+  // Join code input state for inline join
+  const [joinCode, setJoinCode] = useState("");
+
+  const handleJoin = (e) => {
+    e.preventDefault();
     if (
-      code.length === 6 &&
-      !classrooms.find((c) => c.code === code)
+      joinCode.length === 6 &&
+      !classrooms.find((c) => c.code === joinCode)
     ) {
-      const name = `Classroom ${code}`;
+      const name = `Classroom ${joinCode}`;
       setClassrooms((prev) => [
         ...prev,
         {
-          code,
+          code: joinCode,
           name,
           color: funPalette[(prev.length + 1) % funPalette.length],
           joinedAt: Date.now(),
-          members: []
-        }
+          members: [],
+        },
       ]);
-      setDashboardView(false);
-      setSelectedClassroom(code);
+      setJoinCode("");
     }
   };
 
-  // Show modal to create classroom
-  const launchCreateClassroom = () => setShowCreateClassModal(true);
+  // Modal state (for classroom creation)
+  const [showCreateClassModal, setShowCreateClassModal] = useState(false);
 
-  // Handle Create Classroom with Modal
+  // Create classroom with info
   const handleCreateClassroomWithInfo = (name, numMembers) => {
     let newCode = generateCode(6, false);
     while (classrooms.some((c) => c.code === newCode))
@@ -134,50 +132,25 @@ function App() {
       name: name || `Classroom ${newCode}`,
       color: funPalette[(classrooms.length + 2) % funPalette.length],
       joinedAt: Date.now(),
-      members: membersList
+      members: membersList,
     };
     setClassrooms((prev) => [...prev, newClass]);
-    setDashboardView(false);
-    setSelectedClassroom(newCode);
     setShowCreateClassModal(false);
   };
 
-  // Old "onCreate" kept for form compatibility
-  const handleCreateClassroom = () => {
-    setShowCreateClassModal(true);
-  };
-
-  // Enter classroom
-  const openClassroom = (code) => {
-    setSelectedClassroom(code);
-    setDashboardView(false);
-  };
-
-  const leaveClassroom = () => {
-    setSelectedClassroom(null);
-    setDashboardView(true);
-  };
-
-  // Update classroom on members change (used by GroupProjects modal logic)
-  const updateClassroomMembers = (code, newMembers) => {
-    setClassrooms((prev) =>
-      prev.map((c) =>
-        c.code === code ? { ...c, members: newMembers } : c
-      )
-    );
-  };
-
   if (!registered) {
+    // Registration simple card presented full-centered
     return (
-      <div className="cc-main-bg">
-        <nav className="cc-navbar">
-          <div className="cc-logo">ClassroomConnect</div>
-        </nav>
-        <div className="cc-register-wrap">
-          <div className="cc-card cc-register-card">
-            <form onSubmit={handleRegistration} style={{ width: "100%" }}>
+      <div className="app-bg-contrast">
+        <div className="app-container-centered">
+          <div className="main-white-container">
+            <header className="app-logo-header" style={{ marginBottom: 32, fontWeight: 800 }}>
+              <span className="app-logo-emoji" role="img" aria-label="Backpack" style={{ marginRight: 10, fontSize: 28 }}>🎒</span>
+              ClassroomConnect
+            </header>
+            <form onSubmit={handleRegistration} className="register-form">
               <input
-                className="cc-input"
+                className="white-input"
                 placeholder="Enter your nickname..."
                 maxLength={20}
                 minLength={2}
@@ -187,11 +160,11 @@ function App() {
                 style={{ width: "100%" }}
                 autoFocus
               />
-              <div className="cc-ucode-label" style={{ color: NAVY }}>
+              <div className="ucode-label" style={{ margin: "0 0 17px 0" }}>
                 <span>Your unique code: </span>
-                <span className="cc-ucode">{userCode}</span>
+                <span className="white-ucode">{userCode}</span>
               </div>
-              <button className="cc-btn cc-btn-large" type="submit">
+              <button className="main-action-btn main-action-btn-create" type="submit">
                 Get Started
               </button>
             </form>
@@ -201,90 +174,171 @@ function App() {
     );
   }
 
+  // Main app container
   return (
-    <div className="cc-main-bg app-expanded-bg">
-      <nav className="cc-navbar cc-navbar-modern">
-        <div className="cc-logo">
-          <span className="cc-logo-img" role="img" style={{ marginRight: 7 }}>
-            🎒
-          </span>
-          ClassroomConnect
-        </div>
-        <div className="cc-nav-right">
-          <span className="cc-username">{username}</span>
-          <span className="cc-ucode" title="Your unique user code">
-            {userCode}
-          </span>
-        </div>
-      </nav>
-      <main className="cc-main-container-expanded">
-        {dashboardView ? (
-          <>
-            <Dashboard
-              classrooms={classrooms}
-              onCreate={launchCreateClassroom}
-              onJoin={handleJoinClassroom}
-              openClassroom={openClassroom}
-              funPalette={funPalette}
-            />
-            {showCreateClassModal &&
-              <CreateClassroomModal
-                onSubmit={handleCreateClassroomWithInfo}
-                onClose={() => setShowCreateClassModal(false)}
+    <div className="app-bg-contrast">
+      <div className="app-container-centered">
+        <div className="main-white-container">
+          <header className="app-logo-header" style={{ marginBottom: 26 }}>
+            <span className="app-logo-emoji" role="img" aria-label="Backpack" style={{ marginRight: 10, fontSize: 28 }}>🎒</span>
+            ClassroomConnect
+          </header>
+
+          {/* Top row: Create, Input, Join */}
+          <section className="top-action-bar">
+            <button
+              className="round-action-btn round-btn-create"
+              type="button"
+              tabIndex={0}
+              onClick={() => setShowCreateClassModal(true)}
+              aria-label="Create"
+            >
+              <span role="img" aria-label="Plus" style={{ marginRight: 6, fontWeight: 600 }}>➕</span>
+              Create
+            </button>
+            <form
+              className="round-action-form"
+              onSubmit={handleJoin}
+              autoComplete="off"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <input
+                className="white-input round-input"
+                placeholder="Enter Code"
+                maxLength={6}
+                minLength={6}
+                required
+                style={{ textAlign: "center" }}
+                value={joinCode}
+                onChange={(e) =>
+                  setJoinCode(e.target.value.replace(/[^0-9]/g, ""))
+                }
+                aria-label="Enter Code"
               />
-            }
-          </>
-        ) : (
-          <ClassroomPanel
-            classroom={
-              classrooms.find((c) => c.code === selectedClassroom) || {}
-            }
-            username={username}
-            userCode={userCode}
-            leaveClassroom={leaveClassroom}
-            updateClassroomMembers={updateClassroomMembers}
-            funPalette={funPalette}
-          />
-        )}
-      </main>
-      <footer className="cc-footer-expanded">
-        <div className="cc-footer-content">
-          <span style={{ fontWeight: 600, color: NAVY }}>
-            ClassroomConnect 
-          </span>
-          <span className="cc-footer-spacer" />
-          <span style={{ color: "#406495", fontSize: "0.98rem" }}>
-            &copy; {new Date().getFullYear()}
-          </span>
+              <button
+                className="round-action-btn round-btn-join"
+                type="submit"
+                aria-label="Join"
+                style={{ marginLeft: 12 }}
+              >
+                <span role="img" aria-label="Join Door" style={{ marginRight: 3 }}>🚪</span>
+                Join
+              </button>
+            </form>
+          </section>
+
+          {/* Section - Classrooms row */}
+          <section className="classrooms-row">
+            <div className="classrooms-title">Your Classrooms</div>
+            <div className="classcards-row">
+              {classrooms.length === 0 ? (
+                <div className="empty-class-msg">No classes yet. Join or create one!</div>
+              ) : (
+                classrooms
+                  .sort((a, b) => b.joinedAt - a.joinedAt)
+                  .map((c, idx) => (
+                    <ClassCard
+                      key={c.code}
+                      classroom={c}
+                      color={c.color || funPalette[idx % funPalette.length]}
+                    />
+                  ))
+              )}
+            </div>
+          </section>
+
+          {/* Modal for classroom creation */}
+          {showCreateClassModal && (
+            <CreateClassroomModal
+              onSubmit={handleCreateClassroomWithInfo}
+              onClose={() => setShowCreateClassModal(false)}
+            />
+          )}
+
+          {/* Footer inside main container */}
+          <footer className="main-footer-bar">
+            <div style={{ display: "flex", gap: 8, alignItems: "center", width: "100%", justifyContent: "space-between", fontSize: "1.01em", color: "#475788" }}>
+              <span style={{ fontWeight: 600 }}>ClassroomConnect</span>
+              <span style={{ fontSize: "0.98rem" }}>
+                &copy; {new Date().getFullYear()}
+              </span>
+            </div>
+          </footer>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
 
-// --- Modal: Create Classroom ---
+function ClassCard({ classroom, color }) {
+  return (
+    <button
+      className="square-classcard"
+      tabIndex={0}
+      style={{
+        background: color || "var(--orange)",
+        color: "#233850",
+        borderRadius: "20px",
+        minWidth: 110,
+        minHeight: 110,
+        maxWidth: 148,
+        maxHeight: 148,
+        margin: "0 0px",
+        boxShadow: "0 2.5px 9px 0 rgba(180,170,120,0.10)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "var(--font-main)",
+        fontWeight: 800,
+        cursor: "pointer",
+        border: "none",
+        outline: "none",
+      }}
+      aria-label={"Open " + classroom.name}
+    >
+      <div style={{
+        fontWeight: 900,
+        fontSize: "1.12rem",
+        marginBottom: 6,
+        color: "#1a2c45",
+        letterSpacing: "0.5px",
+        wordBreak: "break-word",
+        textAlign: "center"
+      }}>
+        {classroom.name}
+      </div>
+      <div style={{
+        fontWeight: 700,
+        fontSize: "1.01rem",
+        color: "#5275af"
+      }}>
+        #{classroom.code}
+      </div>
+      <div style={{ fontSize: 13, color: "#548e74", fontWeight: 600 }}>
+        Joined {new Date(classroom.joinedAt).toLocaleDateString([], {
+          month: "short",
+          day: "numeric"
+        })}
+      </div>
+    </button>
+  );
+}
+
 function CreateClassroomModal({ onSubmit, onClose }) {
   const [name, setName] = useState("");
   const [numMembers, setNumMembers] = useState(5);
 
   return (
-    <div style={{
-      position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
-      background: "rgba(115,147,179,0.12)", display: "flex",
-      alignItems: "center", justifyContent: "center", zIndex: 9999
-    }}>
-      <div className="cc-card" style={{
-        minWidth: 320, maxWidth: 370, background: "#fff", color: NAVY, position: "relative"
-      }}>
-        <button type="button"
-          onClick={onClose}
-          style={{
-            position: "absolute", top: 16, right: 16, background: "transparent",
-            color: NAVY, fontSize: 22, border: "none", fontWeight: 600, cursor: "pointer"
-          }}
+    <div className="modal-outer-bg">
+      <div className="modal-white-card">
+        <button
+          type="button"
           aria-label="Close create classroom modal"
+          className="modal-close-btn"
+          onClick={onClose}
         >✖</button>
-        <h2 style={{ color: NAVY, margin: 0, marginBottom: 15 }}>Create a Classroom</h2>
+        <h2 style={{ color: NAVY, marginTop: 0, marginBottom: 18, fontWeight: 800 }}>Create a Classroom</h2>
         <form
           onSubmit={e => {
             e.preventDefault();
@@ -294,56 +348,44 @@ function CreateClassroomModal({ onSubmit, onClose }) {
         >
           <label style={{ color: NAVY, fontWeight: 500 }}>Classroom Name</label>
           <input
-            className="cc-input"
+            className="white-input"
             required
             maxLength={36}
             placeholder="Cool Classroom Name"
-            style={{ width: "95%", marginBottom: 17 }}
+            style={{ width: "98%", marginBottom: 16 }}
             value={name}
             onChange={e => setName(e.target.value)}
             autoFocus
           />
           <label style={{ color: NAVY, fontWeight: 500 }}>Number of Members</label>
           <input
-            className="cc-input"
+            className="white-input"
             type="number"
             required
             min={1}
             max={99}
-            style={{ width: 90, marginBottom: 14 }}
+            style={{ width: 90, marginBottom: 15 }}
             value={numMembers}
-            onChange={(e) => setNumMembers(e.target.value.replace(/\D/g, ""))}
+            onChange={e => setNumMembers(e.target.value.replace(/\D/g, ""))}
           />
-          <div style={{ display: "flex", gap: 16, marginTop: 12 }}>
+          <div style={{ display: "flex", gap: 12, marginTop: 14 }}>
             <button
-              className="cc-btn cc-btn-large"
+              className="main-action-btn main-action-btn-create"
               style={{
-                background: babyBlue,
-                color: NAVY,
                 flex: 1,
-                textTransform: "uppercase",
-                fontWeight: 800,
-                border: "3px solid var(--accent)",
-                borderRadius: "30px",
-                boxShadow: "0 2px 6px 0 rgba(6,214,160,0.09)",
-                padding: "13px 0"
               }}
               type="submit"
             >
               Create
             </button>
             <button
-              className="cc-btn cc-btn-large"
+              className="main-action-btn"
               style={{
-                background: pink,
+                background: "#F5F8FA",
                 color: NAVY,
+                border: "2px solid #e6ecf5",
+                fontWeight: 700,
                 flex: 1,
-                textTransform: "uppercase",
-                fontWeight: 800,
-                border: "3px solid #FDB8EE",
-                borderRadius: "30px",
-                boxShadow: "0 2px 6px 0 rgba(255,194,255,0.13)",
-                padding: "13px 0"
               }}
               type="button"
               onClick={onClose}
@@ -355,345 +397,6 @@ function CreateClassroomModal({ onSubmit, onClose }) {
       </div>
     </div>
   );
-}
-
-// ========== DASHBOARD ==========
-function Dashboard({
-  classrooms,
-  onCreate,
-  onJoin,
-  openClassroom,
-  funPalette
-}) {
-  const [joinCode, setJoinCode] = useState("");
-  const handleJoin = (e) => {
-    e.preventDefault();
-    if (joinCode.length === 6) {
-      onJoin(joinCode);
-    }
-  };
-
-  return (
-    <div className="cc-dash-bg">
-      <div className="cc-dashboard-wrap">
-        <div className="cc-main-cta-center">
-          <div className="cc-main-cta-flexrow">
-            <button
-              className="cc-btn cc-btn-large cc-main-big-btn cc-btn-create"
-              type="button"
-              onClick={onCreate}
-            >
-              <span
-                role="img"
-                aria-label="add"
-                style={{
-                  marginRight: 10,
-                  fontSize: "1.17em",
-                  verticalAlign: "-0.08em",
-                }}
-              >
-                ➕
-              </span>
-              Create
-            </button>
-            <form
-              onSubmit={handleJoin}
-              className="cc-main-cta-join-form"
-              autoComplete="off"
-              style={{ margin: 0, width: "100%" }}
-            >
-              <input
-                className="cc-input cc-main-big-input"
-                placeholder="Enter Code"
-                maxLength={6}
-                minLength={6}
-                required
-                style={{ textAlign: "center" }}
-                value={joinCode}
-                onChange={(e) =>
-                  setJoinCode(e.target.value.replace(/[^\d]/g, ""))
-                }
-              />
-              <button
-                className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
-                type="submit"
-              >
-                <span
-                  role="img"
-                  aria-label="join"
-                  style={{
-                    marginRight: 10,
-                    fontSize: "1.05em",
-                    verticalAlign: "-0.05em",
-                  }}
-                >
-                  🚪
-                </span>
-                Join
-              </button>
-            </form>
-          </div>
-        </div>
-        <div
-          style={{
-            marginBottom: 22,
-            color: NAVY,
-            fontWeight: 600,
-            fontSize: "1.11em",
-            alignSelf: "flex-start",
-            marginLeft: 10
-          }}
-        >
-          Your Classrooms
-        </div>
-        <div className="cc-classcards-grid">
-          {classrooms.length === 0 && (
-            <div
-              style={{
-                textAlign: "center",
-                color: NAVY,
-                fontSize: "1.11em"
-              }}
-            >
-              No classes yet. Join or create one!
-            </div>
-          )}
-          {classrooms.sort((a, b) => b.joinedAt - a.joinedAt).map((c, idx) => (
-            <ClassCard
-              key={c.code}
-              classroom={c}
-              color={c.color || funPalette[idx % funPalette.length]}
-              onClick={() => openClassroom(c.code)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ClassCard({ classroom, color, onClick }) {
-  // Pills, yellow, shadow, dark/navy text, no border/gradient, accessible
-  return (
-    <button
-      className="cc-card cc-classcard"
-      tabIndex={0}
-      style={{
-        background: "var(--orange)",
-        color: "var(--deep-navy)",
-        cursor: "pointer",
-        borderRadius: "999px",
-        margin: "0",
-        fontFamily: "var(--font-main)",
-      }}
-      onClick={onClick}
-      aria-label={"Open " + classroom.name}
-    >
-      <div
-        style={{
-          fontWeight: 900,
-          fontSize: "1.20rem",
-          marginBottom: 9,
-          color: "var(--deep-navy)",
-          letterSpacing: "1px",
-          wordBreak: "break-word"
-        }}
-      >
-        {classroom.name}
-      </div>
-      <div
-        style={{
-          fontWeight: 750,
-          fontSize: "1.02rem",
-          letterSpacing: 1.1,
-          color: "#406495"
-        }}
-      >
-        #{classroom.code}
-      </div>
-      <div style={{ fontSize: 13, color: "#5275af" }}>
-        Joined{" "}
-        {new Date(classroom.joinedAt).toLocaleDateString([], {
-          month: "short",
-          day: "numeric"
-        })}
-      </div>
-    </button>
-  );
-}
-
-// ========== CLASSROOM PANEL ==========
-function ClassroomPanel({
-  classroom,
-  username,
-  userCode,
-  leaveClassroom,
-  updateClassroomMembers,
-  funPalette
-}) {
-  const [tab, setTab] = useState("chat");
-  return (
-    <div className="cc-classroom-bg">
-      <div className="cc-classroom-header">
-        {/* Exit classroom button */}
-        <button
-          className="cc-btn cc-btn-large"
-          onClick={leaveClassroom}
-          style={{
-            color: NAVY,
-            background: secondary,
-            marginRight: 10,
-            textTransform: "uppercase",
-            fontWeight: 800,
-            padding: "13px 24px",
-            fontSize: "1.10em",
-            letterSpacing: "0.6px",
-            boxShadow: "0 1.5px 7px 0 rgba(115,147,179,0.10)"
-          }}
-        >
-          ⬅ Exit Classroom
-        </button>
-        <div
-          className="cc-crumb-title"
-          style={{
-            color: NAVY
-          }}
-        >
-          {classroom.name || "Classroom"}
-        </div>
-        <span className="cc-classcode" style={{ color: NAVY }}>#{classroom.code}</span>
-      </div>
-      <div className="cc-class-tabs-bar">
-        <TabButton
-          active={tab === "chat"}
-          onClick={() => setTab("chat")}
-          label="💬 Chat"
-        />
-        <TabButton
-          active={tab === "bulletin"}
-          onClick={() => setTab("bulletin")}
-          label="📢 Bulletin"
-        />
-        <TabButton
-          active={tab === "notebook"}
-          onClick={() => setTab("notebook")}
-          label="📖 Notebook"
-        />
-        <TabButton
-          active={tab === "projects"}
-          onClick={() => setTab("projects")}
-          label="🤝 Group Projects"
-        />
-        <TabButton
-          active={tab === "calls"}
-          onClick={() => setTab("calls")}
-          label="🎥 Calls"
-        />
-      </div>
-      <div className="cc-tabview">
-        {tab === "chat" && (
-          <ClassroomChat username={username} classCode={classroom.code} />
-        )}
-        {tab === "bulletin" && (
-          <BulletinBoard username={username} classCode={classroom.code} />
-        )}
-        {tab === "notebook" && (
-          <NotebookBoard username={username} classCode={classroom.code} />
-        )}
-        {tab === "projects" && (
-          <GroupProjects
-            username={username}
-            classCode={classroom.code}
-            classroom={classroom}
-            updateClassroomMembers={updateClassroomMembers}
-            funPalette={funPalette}
-          />
-        )}
-        {tab === "calls" && (
-          <CallsPanel username={username} classCode={classroom.code} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function TabButton({ label, active, onClick }) {
-  return (
-    <button
-      className={
-        "cc-class-tab-btn" +
-        (active ? " cc-class-tab-btn-active" : "")
-      }
-      onClick={onClick}
-      type="button"
-      style={{
-        textTransform: "uppercase",
-        fontWeight: 800,
-        borderRadius: "23px",
-        boxShadow: active
-          ? "0 1.5px 7px 0 rgba(6,214,160,0.11)"
-          : "0 1.5px 7px 0 rgba(115,147,179,0.08)",
-        padding: "12px 18px",
-        background: active ? "var(--primary-blue)" : "var(--orange)",
-        color: active ? "white" : "var(--navy)",
-        fontSize: "1.06em",
-        letterSpacing: "0.7px",
-        marginBottom: "1px"
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
-// ========== GROUP PROJECTS ==========
-// ... (rest of the code for GroupProjects, ClassroomChat, BulletinBoard, NotebookBoard, CallsPanel remains unchanged)
-
-/** Stub components for missing imports to resolve build errors **/
-
-// PUBLIC_INTERFACE
-function ClassroomChat() {
-  return <div>Classroom Chat</div>;
-}
-
-// PUBLIC_INTERFACE
-function BulletinBoard() {
-  return <div>Bulletin Board</div>;
-}
-
-// PUBLIC_INTERFACE
-function NotebookBoard() {
-  return <div>Notebook Board</div>;
-}
-
-// PUBLIC_INTERFACE
-function GroupProjects() {
-  return <div>Group Projects</div>;
-}
-
-// PUBLIC_INTERFACE
-function CallsPanel() {
-  return <div>Calls Panel</div>;
-}
-
-// ========== STYLES (unchanged injection) ==========
-const globalCSS = `
-body, .cc-main-bg, .cc-dashboard-wrap, .cc-classroom-header, .cc-classcard, .cc-card, .cc-btn, .cc-input, h1, h2, h3, h4, h5, h6, p, span, label, select, option, .cc-class-tab-btn, .cc-chat-msg, .cc-projects-heading, .cc-empty-text, .cc-bulletin-empty, .cc-notebook-empty, .cc-note-item, .cc-team-members {
-  color: var(--navy, #001f4d) !important;
-}
-body, .cc-main-bg {
-  background: var(--main-bg, #7393B3);
-  min-height: 100vh;
-  font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
-}
-/* ...truncated... all other injected CSS present in original file... */
-`;
-
-if (!document.getElementById("cc-global-styles")) {
-  const styleTag = document.createElement("style");
-  styleTag.id = "cc-global-styles";
-  styleTag.innerHTML = globalCSS;
-  document.head.appendChild(styleTag);
 }
 
 export default App;
