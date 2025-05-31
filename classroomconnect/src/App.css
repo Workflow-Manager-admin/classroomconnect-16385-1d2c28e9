@@ -280,31 +280,26 @@ body,
 
 /* Visually distinct and accessible hover/focus states */
 .cc-btn-create:hover, .cc-btn-create:focus {
-  background: var(--orange) !important;
-  color: var(--navy) !important;
-  border: none !important;
-  box-shadow: 0 4px 18px 0 rgba(255,209,102,0.13), 0 2.5px 8px 0 rgba(0,31,77,0.14);
-  outline: 3px solid #fdc657;
+  background: #644ddd !important;
+  color: var(--white) !important;
+  box-shadow: 0 4px 18px 0 rgba(120,115,230,0.14);
+  outline: 3px solid #e0eaff;
   outline-offset: 1.5px;
 }
 .cc-btn-join:hover, .cc-btn-join:focus {
-  background: var(--accent) !important;
-  color: var(--navy) !important;
-  border: none !important;
-  box-shadow: 0 4px 18px 0 rgba(6,214,160,0.12), 0 2.5px 8px 0 rgba(0,31,77,0.12);
-  outline: 3px solid #06D6A0;
+  background: #f6871f !important;
+  color: var(--white) !important;
+  box-shadow: 0 4px 18px 0 rgba(255,140,52,0.11);
+  outline: 3px solid #ffd166;
   outline-offset: 1.5px;
 }
-/* Make :active a pressed/contrast state */
 .cc-btn-create:active {
-  background: #ffeda9 !important;
-  color: var(--navy) !important;
-  border: none !important;
+  background: #3e3267 !important;
+  color: var(--white) !important;
 }
 .cc-btn-join:active {
-  background: #7efedd !important;
-  color: var(--navy) !important;
-  border: none !important;
+  background: #e57000 !important;
+  color: var(--white) !important;
 }
 /* End custom styles for Create/Join buttons */
 
