@@ -952,7 +952,7 @@ function GroupProjects({ username, classCode }) {
           )}
           {projects.map((p) => (
             <div key={p.id} className="cc-single-project">
-              <div className="cc-proj-title">
+              <div className="cc-proj-title" style={{ color: NAVY }}>
                 <b>{p.name}</b>
               </div>
               {/* Teams */}
