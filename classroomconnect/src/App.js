@@ -1787,7 +1787,7 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
             No posts yet. Announcements or reminders for the classroom will appear here!
           </div>
         ) : (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            <ul className="bulletin-post-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {sortedPosts.map(post => {
                 const mine = post.authorCode === userCode;
                 const important = post.importance === "high";
@@ -1797,71 +1797,77 @@ function BulletinBoard({ classroom, loggedInUser, userCode }) {
                 return (
                   <li
                     key={post.id}
+                    className="bulletin-post-item"
                     style={{
                       background: highlight ? impStyle.bg : "#fff",
                       border: highlight ? `2.1px solid ${impStyle.border}` : "2px solid #eef2fb",
-                      boxShadow: important ?
-                        "0 4px 18px 0 rgba(230,63,53,0.08)" :
-                        "0 2.5px 8px 0 rgba(150,150,200,0.06)",
+                      boxShadow: important
+                        ? "0 4px 18px 0 rgba(230,63,53,0.08)"
+                        : "0 2.5px 8px 0 rgba(150,150,200,0.06)",
                       borderRadius: 15,
                       marginBottom: 13,
-                      padding: "13px 17px 8px 15px",
                       position: "relative",
-                      transition: "background 0.14s, border .13s"
+                      transition: "background 0.14s, border .13s",
+                      minWidth: 0,
+                      minHeight: 0,
+                      width: "100%",
+                      wordBreak: "break-word",
+                      overflowWrap: "anywhere"
                     }}
                   >
-                    <div style={{
-                      fontWeight: 900,
-                      color: impStyle.color,
-                      fontSize: 19,
-                      marginBottom: 2,
-                      display: "flex", alignItems: "center", gap: 5
-                    }}>
-                      <span>
-                        {importanceIcons[post.importance]} 
+                    <div
+                      className="bulletin-post-header"
+                      style={{
+                        color: impStyle.color,
+                        marginBottom: 2
+                      }}
+                    >
+                      <span style={{ flexShrink: 0 }}>
+                        {importanceIcons[post.importance]}
                       </span>
-                      {post.title}
+                      <span className="bulletin-post-title">
+                        {post.title}
+                      </span>
                       {important &&
-                        <span style={{ marginLeft: 8, fontSize: 13.3, color: "#fff",
-                          background: "#d14", borderRadius: 999, padding: "2.2px 9px", fontWeight: 800 }}>
+                        <span className="bulletin-post-label bulletin-post-highlabel"
+                          style={{
+                            background: "#d14",
+                            color: "#fff"
+                          }}>
                           HIGH
                         </span>
                       }
                       {reminderDue && (
-                        <span style={{
-                          marginLeft: 7, fontSize: 13, color: "#fff",
-                          background: "#44b", borderRadius: 999, padding: "2.2px 10px", fontWeight: 800,
-                        }}>
+                        <span
+                          className="bulletin-post-label bulletin-post-reminderlabel"
+                          style={{
+                            background: "#44b",
+                            color: "#fff"
+                          }}
+                        >
                           Reminder
                         </span>
                       )}
                     </div>
-                    <div style={{
-                      fontWeight: 600,
-                      color: "#2f2979",
-                      fontSize: 14.9,
-                      marginTop: 0,
-                      marginBottom: 4,
-                      whiteSpace: "pre-wrap"
-                    }}>{post.content}</div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 2 }}>
-                      <span style={{
-                        color: "#888",
-                        fontWeight: 500,
-                        fontSize: 12.7
-                      }}>
+                    <div
+                      className="bulletin-post-content"
+                    >
+                      {post.content}
+                    </div>
+                    <div className="bulletin-post-meta" style={{ marginTop: 2 }}>
+                      <span>
                         Posted by <span style={{ color: "#753", fontWeight: 800 }}>{post.author}</span>
                       </span>
-                      <span style={{ color: "#a98", fontWeight: 700, fontSize: 12.5 }}>
+                      <span style={{ color: "#a98", fontWeight: 700 }}>
                         • {formatTs(post.timestamp)}
                       </span>
                       {post.reminder &&
-                        <span style={{ color: "#278", fontWeight: 700, fontSize: 12.5 }}>
+                        <span style={{ color: "#278", fontWeight: 700 }}>
                           • Remind at {formatReminder(post.reminder)}
                         </span>
                       }
                     </div>
-                    <div style={{ position: "absolute", right: 22, top: 10, display: "flex", gap: 9 }}>
+                    <div className="bulletin-post-actions">
                       {mine && (
                         <>
                           <button
