@@ -413,3 +413,18 @@ body, .app-bg-contrast {
 ::-webkit-scrollbar {
   width: 9px;
 }
+
+/* ------ Chat UI (classroom) ------ */
+.chat-messages-panel {
+  scrollbar-width: thin;
+  scrollbar-color: #b4cadc #f3f6fe;
+}
+
+.chat-messages-panel::-webkit-scrollbar {
+  width: 8px;
+  background: #f7f9fb;
+}
+.chat-messages-panel::-webkit-scrollbar-thumb {
+  background: #c7d4e7;
+  border-radius: 8px;
+}

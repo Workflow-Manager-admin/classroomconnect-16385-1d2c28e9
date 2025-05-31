@@ -573,21 +573,252 @@ function VerticalDetailMenu({ currentTab, setTab, onBack }) {
   );
 }
 
-// Left main panel: content by selected detail section (stubbed for now)
+/**
+ * PUBLIC_INTERFACE
+ * Classroom Chat component: Handles message list, sending, delete, reactively for current classroom.
+ */
+function ClassroomChat({
+  classroom,
+  loggedInUser,
+  userCode,
+  chatData,
+  setChatData,
+}) {
+  // Get or initialize chat message array for this classroom
+  const classChatId = classroom.code;
+  const [messageInput, setMessageInput] = useState("");
+  const messagesEndRef = React.useRef(null);
+
+  // Scroll to newest message on send/new msg
+  useEffect(() => {
+    if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [chatData[classChatId]]);
+
+  // Used as a pseudo-incrementing ID per classroom chat (in real app, backend assigns IDs)
+  const createMsgId = () =>
+    "m-" +
+    Math.random().toString(36).slice(2, 9) +
+    Date.now().toString().slice(-5);
+
+  // Handles sending a new message
+  function handleSend(e) {
+    e.preventDefault();
+    const trimmed = messageInput.trim();
+    if (!trimmed) return;
+    const msgObj = {
+      id: createMsgId(),
+      user: loggedInUser,
+      userCode,
+      text: trimmed,
+      ts: Date.now(),
+    };
+    setChatData(prev => {
+      const prevArr = Array.isArray(prev[classChatId]) ? prev[classChatId] : [];
+      return {
+        ...prev,
+        [classChatId]: [...prevArr, msgObj].slice(-150), // Cap to last 150
+      };
+    });
+    setMessageInput("");
+  }
+
+  // Delete a message by id (current user only)
+  function deleteMsg(msgId) {
+    setChatData(prev => ({
+      ...prev,
+      [classChatId]: prev[classChatId].filter(m => m.id !== msgId),
+    }));
+  }
+
+  // Sort messages oldest-to-newest for display
+  const messages = Array.isArray(chatData[classChatId])
+    ? [...chatData[classChatId]].sort((a, b) => a.ts - b.ts)
+    : [];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 370 }}>
+      <h2 style={{ marginTop: 0, color: "#175880", marginBottom: 9, fontWeight: 800, fontSize: 22 }}>
+        Public Chat
+      </h2>
+      {/* Message list area */}
+      <div
+        className="chat-messages-panel"
+        style={{
+          flex: 1,
+          minHeight: 180,
+          maxHeight: 345,
+          overflowY: "auto",
+          padding: "13px 2px 4px 1px",
+          background: "#F6F8FF",
+          borderRadius: 13,
+          border: "1.5px solid #dde3ef",
+          marginBottom: 13,
+          boxShadow: "0 1.5px 8px 0 rgba(90,140,210,0.05)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {messages.length === 0 && (
+          <div style={{ color: "#8bb", fontWeight: 500, opacity: 0.74, textAlign: "center", marginTop: 25, fontSize: 16 }}>
+            No messages yet. Say hello! 👋
+          </div>
+        )}
+        {messages.map(msg => {
+          const mine = msg.userCode === userCode;
+          return (
+            <div
+              key={msg.id}
+              style={{
+                display: "flex",
+                flexDirection: mine ? "row-reverse" : "row",
+                alignItems: "flex-end",
+                margin: "5px 0",
+                gap: 9,
+              }}
+            >
+              {/* Message bubble */}
+              <div
+                style={{
+                  maxWidth: "82%",
+                  background: mine ? "linear-gradient(96deg,#FFD166 80%,#FAF8EA 100%)" : "#e6f3ff",
+                  color: mine ? "#013" : "#1a2944",
+                  borderRadius: mine ? "18px 18px 4px 19px" : "18px 18px 19px 4px",
+                  padding: "10px 15px 9px 15px",
+                  boxShadow: mine
+                    ? "0 1.5px 8px 0 rgba(220,190,80,0.08)"
+                    : "0 1.5px 8px 0 rgba(70,155,210,0.09)",
+                  fontWeight: mine ? 800 : 600,
+                  fontSize: 16.5,
+                  minWidth: 58,
+                  wordBreak: "break-word",
+                  position: "relative",
+                  marginLeft: mine ? 0 : 2,
+                  marginRight: mine ? 2 : 0,
+                }}
+              >
+                <span style={{ fontSize: 14.4, fontWeight: 700, color: mine ? "#b37a10" : "#1762ab", opacity: 0.82 }}>
+                  {msg.user}
+                </span>
+                <div style={{ fontWeight: 600, margin: "4px 0 0 0" }}>{msg.text}</div>
+                <div style={{ fontSize: 12.2, color: "#44689b", marginTop: 3, opacity: 0.7, fontWeight: 500 }}>
+                  {new Date(msg.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </div>
+                {/* Delete icon for own msg */}
+                {mine && (
+                  <button
+                    aria-label="Delete"
+                    title="Delete message"
+                    onClick={() => deleteMsg(msg.id)}
+                    style={{
+                      position: "absolute",
+                      right: 5,
+                      top: 4,
+                      background: "none",
+                      border: "none",
+                      fontSize: 13,
+                      color: "#a43",
+                      opacity: 0.65,
+                      cursor: "pointer",
+                      fontWeight: 800,
+                      padding: 0,
+                    }}
+                  >
+                    🗑️
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </div>
+      {/* Message typing form - stays at bottom */}
+      <form
+        onSubmit={handleSend}
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          gap: 8,
+          background: "#fffced",
+          padding: "8px 10px 9px 10px",
+          borderTop: "1.5px solid #e5e3bf",
+          borderRadius: 11,
+          position: "relative",
+          boxShadow: "0 0.5px 4px 0 rgba(170,160,89,0.07)",
+        }}
+      >
+        <input
+          type="text"
+          value={messageInput}
+          onChange={e => setMessageInput(e.target.value)}
+          placeholder="Type a message..."
+          maxLength={240}
+          required
+          style={{
+            flex: 1,
+            borderRadius: 16,
+            border: "2px solid #FFD166",
+            padding: "10px 15px",
+            fontWeight: 700,
+            fontSize: 16,
+            fontFamily: "var(--font-main)",
+            background: "#fffef8",
+            color: "#071133",
+            outline: "none",
+            marginRight: 2,
+            boxShadow: "0 1px 3px 0 rgba(255,220,90,0.05)",
+          }}
+          autoFocus
+        />
+        <button
+          type="submit"
+          className="main-action-btn main-action-btn-create"
+          style={{
+            minWidth: 55,
+            padding: "7px 19px",
+            fontWeight: 900,
+            fontSize: 17,
+          }}
+          aria-label="Send"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  );
+}
+// Left main panel: content by selected detail section
 // PUBLIC_INTERFACE
 function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
+  // Chat state is lifted up in App to persist while in classroom
+  const [chatData, setChatData] = React.useState(() => {
+    // Try sessionStorage for demo persistence (not backend, cleared per browser tab)
+    try {
+      return (
+        JSON.parse(window.sessionStorage.getItem("classChat") || "{}") || {}
+      );
+    } catch {
+      return {};
+    }
+  });
+  const userCode =
+    localStorage.getItem("userCode") || Math.random().toString(36).slice(2, 10);
+  // On chatData change, sync to sessionStorage (simulates backend persistence per session)
+  useEffect(() => {
+    try {
+      window.sessionStorage.setItem("classChat", JSON.stringify(chatData));
+    } catch {}
+  }, [chatData]);
   switch (tab) {
     case "chats":
       return (
-        <div>
-          <h2 style={{ marginTop: 0, color: "#175880" }}>Public Chat</h2>
-          <div style={{ background: "#F0F8FF", borderRadius: 12, padding: 18, fontSize: 17, color: "#468" }}>
-            Chat for classroom <b>{classroom.name}</b> will appear here.
-            <div style={{ fontSize: 13, color: "#62a", marginTop: 12, opacity: 0.65 }}>
-              (This is a stub. Real messages would be real-time here.)
-            </div>
-          </div>
-        </div>
+        <ClassroomChat
+          classroom={classroom}
+          loggedInUser={loggedInUser}
+          userCode={userCode}
+          chatData={chatData}
+          setChatData={setChatData}
+        />
       );
     case "board":
       return (
