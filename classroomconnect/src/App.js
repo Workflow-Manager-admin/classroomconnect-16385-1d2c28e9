@@ -361,15 +361,19 @@ function Dashboard({
             className="cc-btn cc-btn-large cc-main-big-btn cc-btn-create"
             type="button"
             onClick={onCreate}
+            style={{
+              background: babyBlue,
+              color: "#fff",
+              border: "none"
+            }}
           >
-            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.2em' }}>➕</span>
+            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.17em', verticalAlign: "-0.08em" }}>➕</span>
             Create
           </button>
           <form
             onSubmit={handleJoin}
             className="cc-main-cta-join-form"
             autoComplete="off"
-            style={{ width: "100%" }}
           >
             <input
               className="cc-input cc-main-big-input"
@@ -387,19 +391,24 @@ function Dashboard({
               className="cc-btn cc-btn-large cc-main-big-btn cc-btn-join"
               type="submit"
               style={{
-                marginTop: "4px"
+                background: babyBlue,
+                color: "#fff",
+                marginTop: 0,
+                border: "none"
               }}
             >
-              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.08em' }}>🚪</span>
+              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.05em', verticalAlign: "-0.05em" }}>🚪</span>
               Join
             </button>
           </form>
         </div>
         <div
           style={{
-            marginBottom: 28,
+            marginBottom: 22,
             color: NAVY,
             fontWeight: 600,
+            fontSize: "1.11em",
+            alignSelf: "flex-start",
             marginLeft: 10
           }}
         >
@@ -411,7 +420,7 @@ function Dashboard({
               style={{
                 textAlign: "center",
                 color: NAVY,
-                fontSize: "1.12rem"
+                fontSize: "1.11em"
               }}
             >
               No classes yet. Join or create one!
