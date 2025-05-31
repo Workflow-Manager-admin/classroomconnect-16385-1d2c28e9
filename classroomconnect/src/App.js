@@ -371,8 +371,8 @@ function Dashboard({
             type="button"
             onClick={onCreate}
           >
-            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.35em' }}>➕</span>
-            Create Classroom
+            <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.2em' }}>➕</span>
+            Create
           </button>
           <form
             onSubmit={handleJoin}
@@ -382,7 +382,7 @@ function Dashboard({
           >
             <input
               className="cc-input cc-main-big-input"
-              placeholder="Enter 6-digit code"
+              placeholder="Enter Code"
               maxLength={6}
               minLength={6}
               required
@@ -392,11 +392,11 @@ function Dashboard({
             />
             <button
               className="cc-btn cc-btn-large cc-main-big-btn"
-              style={{ marginTop: '5px' }}
+              style={{ marginTop: '4px' }}
               type="submit"
             >
-              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.25em' }}>🚪</span>
-              Join Classroom
+              <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.08em' }}>🚪</span>
+              Join
             </button>
           </form>
         </div>
