@@ -361,6 +361,10 @@ function Dashboard({
             className="cc-btn cc-btn-large cc-main-big-btn"
             type="button"
             onClick={onCreate}
+            // Width handled by CSS, color by CSS (ensure in .cc-main-big-btn and !important)
+            style={{
+              color: "#fff"
+            }}
           >
             <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.2em' }}>➕</span>
             Create
@@ -369,7 +373,7 @@ function Dashboard({
             onSubmit={handleJoin}
             className="cc-main-cta-join-form"
             autoComplete="off"
-            style={{width:'100%'}}
+            style={{ width: "100%" }}
           >
             <input
               className="cc-input cc-main-big-input"
@@ -379,12 +383,17 @@ function Dashboard({
               required
               style={{ textAlign: "center" }}
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value.replace(/[^\d]/g, ""))}
+              onChange={(e) =>
+                setJoinCode(e.target.value.replace(/[^\\d]/g, ""))
+              }
             />
             <button
               className="cc-btn cc-btn-large cc-main-big-btn"
-              style={{ marginTop: '4px' }}
               type="submit"
+              style={{
+                marginTop: "4px",
+                color: "#fff"
+              }}
             >
               <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.08em' }}>🚪</span>
               Join
