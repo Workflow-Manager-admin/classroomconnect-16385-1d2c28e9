@@ -1,25 +1,42 @@
 :root {
-  --primary-blue: #7393B3;
+  --primary-blue: #7E9CB2;
   --primary-blue-dark: #4a6485;
   --navy: #001f4d;
-  --orange: #FFD166;
-  --card-orange: #FFD166;
+  --deep-navy: #163059;
+  --header-bg: #7E9CB2;
+  --main-bg: #F2F6FA;
   --white: #fff;
+  --orange: #F9DC96;
+  --orange-btn: #F9A23A;
+  --purple-btn: #7677F3;
   --accent: #06D6A0;
-  --border-radius: 22px;
-  --large-radius: 30px;
-  --card-radius: 18px;
-  --transition: 0.13s cubic-bezier(.61,.21,.45,1) all;
-  --shadow: 0 2px 16px 0 rgba(40,80,130,0.10), 0 1.5px 1.5px 0 rgba(115,147,179,0.08);
+  --shadow: 0 2px 16px 0 rgba(40,80,130,0.08), 0 3px 16px 0 rgba(130,166,184,0.08);
+  --card-radius: 28px;
+  --input-radius: 22px;
+  --pill-radius: 999px;
+  --border-radius: 18px;
+  --header-radius: 0 0 28px 28px;
+  --cta-radius: 32px;
+  --font-main: 'Quicksand', 'Inter', 'Roboto', sans-serif;
+  --font-size-lg: 1.3rem;
+  --font-size-med: 1.09rem;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.94rem;
+  --padding-lg: 36px;
+  --padding-base: 22px;
+  --padding-sm: 12px;
+  --margin-lg: 34px;
+  --margin-sm: 12px;
+  --transition: 0.16s cubic-bezier(.61,.21,.45,1) all;
 }
 
 body,
 .cc-main-bg,
 .cc-dash-bg {
-  background: var(--primary-blue);
-  color: var(--navy);
+  background: var(--main-bg);
+  color: var(--deep-navy);
   min-height: 100vh;
-  font-family: 'Quicksand', 'Inter', 'Roboto', sans-serif;
+  font-family: var(--font-main);
   margin: 0;
   padding: 0;
 }
