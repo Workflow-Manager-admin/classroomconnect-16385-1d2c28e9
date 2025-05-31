@@ -278,16 +278,25 @@ function App() {
       <div className="app-bg-contrast">
         <div className="app-container-centered">
           <div className="main-white-container" style={{ minHeight: "64vh", display: "flex", flexDirection: "column" }}>
-            <header className="app-logo-header" style={{ marginBottom: 18 }}>
-              <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
-                <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-                  <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2" />
-                  <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2" />
-                  <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7" />
-                  <circle cx="16" cy="26" r="1.1" fill="#4F8CFF" />
-                </svg>
-              </span>
-              {selectedClassroom.name} <span style={{ marginLeft: 8, color: "#5275af", fontWeight: 400, fontSize: 15 }}>#{selectedClassroom.code}</span>
+            <header className="app-logo-header" style={{ marginBottom: 10, display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+                <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
+                  <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+                    <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2" />
+                    <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2" />
+                    <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7" />
+                    <circle cx="16" cy="26" r="1.1" fill="#4F8CFF" />
+                  </svg>
+                </span>
+                <span style={{ fontWeight: 800 }}>{selectedClassroom.name}</span>
+              </div>
+              {/* Classroom ID + copy functionality */}
+              <div style={{ display: "flex", alignItems: "center", marginTop: 6, gap: 7, marginLeft: 46 }}>
+                <span className="white-ucode" title="Classroom ID" style={{ fontSize: 15.4, fontWeight: 900, letterSpacing: "0.03em" }}>
+                  ID: {selectedClassroom.code}
+                </span>
+                <CopyIDButton code={selectedClassroom.code} />
+              </div>
             </header>
             {/* Two-pane layout */}
             <div style={{
