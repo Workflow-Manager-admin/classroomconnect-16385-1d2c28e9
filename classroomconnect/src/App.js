@@ -384,7 +384,7 @@ function Dashboard({
               style={{ textAlign: "center" }}
               value={joinCode}
               onChange={(e) =>
-                setJoinCode(e.target.value.replace(/[^\\d]/g, ""))
+                setJoinCode(e.target.value.replace(/[^\d]/g, ""))
               }
             />
             <button
