@@ -958,11 +958,11 @@ function GroupProjects({ username, classCode }) {
               {/* Teams */}
               <div className="cc-teams-bar">
                 {p.teams.length === 0 ? (
-                  <div style={{ color: accent, fontWeight: 500 }}>
+                  <div style={{ color: NAVY, fontWeight: 500 }}>
                     No teams formed yet.
                     <button
                       className="cc-btn cc-btn-xsmall"
-                      style={{ marginLeft: 10, background: pink, color: "#134" }}
+                      style={{ marginLeft: 10, background: pink, color: NAVY }}
                       onClick={() =>
                         startRandomTeams(p.id, 2)
                       }
@@ -986,13 +986,14 @@ function GroupProjects({ username, classCode }) {
                           background: funPalette[i % funPalette.length],
                           borderRadius: 15,
                           padding: "5px 12px",
-                          minWidth: 90
+                          minWidth: 90,
+                          color: NAVY
                         }}
                       >
                         <div style={{ fontWeight: 600 }}>
                           {t.name}
                         </div>
-                        <div className="cc-team-members">
+                        <div className="cc-team-members" style={{ color: NAVY }}>
                           {t.members.map((m, midx) => (
                             <span key={midx}>
                               {m}
@@ -1010,7 +1011,7 @@ function GroupProjects({ username, classCode }) {
                           <button
                             className="cc-btn cc-btn-xsmall"
                             onClick={() => joinTeam(p.id, i)}
-                            style={{ marginTop: 5, background: accent }}
+                            style={{ marginTop: 5, background: accent, color: "#fff" }}
                           >
                             Join Team
                           </button>
