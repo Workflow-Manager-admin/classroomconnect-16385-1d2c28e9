@@ -434,7 +434,7 @@ function TabButton({ label, active, onClick }) {
       onClick={onClick}
       type="button"
       style={{
-        color: active ? "#0b3a4b" : "#134",
+        color: NAVY,
         background: active ? "var(--main-secondary)" : "transparent"
       }}
     >
