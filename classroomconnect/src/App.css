@@ -237,6 +237,13 @@ body {
   box-shadow: 0 10px 26px 0 #cbe6f033, 0 1.5px 12px 0 #cfeeef23 inset;
   margin: 0 auto;
   transition: box-shadow 0.21s, transform 0.13s;
+  background: #FFD166 !important;
+  color: #001f4d !important;
+}
+
+/* Force all text inside classroom cards to navy */
+.cc-classcard * {
+  color: #001f4d !important;
 }
 
 .cc-bg-babyblue {
@@ -333,10 +340,10 @@ body {
 
 .btn {
   background-color: var(--primary-blue, #7393B3);
-  color: #fff;
+  color: #fff !important;
   border: none;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: 10px 20px !important;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -345,14 +352,43 @@ body {
 .btn:hover,
 .btn:focus {
   background-color: var(--primary-blue-dark, #4a6485);
-  color: #fff;
+  color: #fff !important;
   /* ensures contrast remains accessible */
 }
 
 .btn-large {
-  padding: 12px 24px;
+  padding: 12px 24px !important;
   font-size: 1.1rem;
 }
+
+.cc-class-tab-btn {
+  color: #fff !important;
+  background: transparent;
+  border-radius: 11px;
+  padding: 10px 20px !important;
+  font-weight: 500;
+  font-size: 1.02rem;
+  border: none;
+}
+
+.cc-class-tab-btn-active {
+  background: var(--main-secondary, #FFD166) !important;
+  color: #001f4d !important;
+}
+
+/* Enforce all buttons to have 10px padding (except .btn-large, which uses 12px) */
+button:not(.btn-large) {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* Ensure all .btn and tab button text is white by default */
+button.btn, .cc-class-tab-btn {
+  color: #fff !important;
+}
+
 
 /* Center main actions vertically/horizontally with big rounds and stacking */
 .cc-main-cta-center {
