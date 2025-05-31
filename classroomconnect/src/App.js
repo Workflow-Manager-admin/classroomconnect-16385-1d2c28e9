@@ -1139,7 +1139,10 @@ function ServicesPanel({ classroom, loggedInUser, onLeaveClassroom }) {
   );
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * ClassroomDetailPane: selects which classroom pane content to display (NO CallsPanel)
+ */
 function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
   // Chat state is lifted up in App to persist while in classroom
   const [chatData, setChatData] = React.useState(() => {
@@ -1186,13 +1189,7 @@ function ClassroomDetailPane({ tab, classroom, loggedInUser }) {
           loggedInUser={loggedInUser}
         />
       );
-    case "calls":
-      return (
-        <CallsPanel
-          classroom={classroom}
-          loggedInUser={loggedInUser}
-        />
-      );
+    // 'calls' case REMOVED
     case "services":
       return (
         <ServicesPanel
