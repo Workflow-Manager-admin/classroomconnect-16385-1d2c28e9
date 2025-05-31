@@ -358,13 +358,9 @@ function Dashboard({
       <div className="cc-dashboard-wrap">
         <div className="cc-main-cta-center">
           <button
-            className="cc-btn cc-btn-large cc-main-big-btn"
+            className="cc-btn cc-btn-large cc-main-big-btn cc-btn-create"
             type="button"
             onClick={onCreate}
-            // Width handled by CSS, color by CSS (ensure in .cc-main-big-btn and !important)
-            style={{
-              color: "#fff"
-            }}
           >
             <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.2em' }}>➕</span>
             Create
