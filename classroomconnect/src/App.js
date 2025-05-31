@@ -1224,21 +1224,28 @@ function ProjectTeamModal({
   processTeamCreationFlow,
   username // Add username as a prop
 }) {
-  const [manualSelected, setManualSelected] = useState(details.manualSelected);
+  // Proper: Use lazy initializer to always include username at start if in manual team mode
+  const [manualSelected, setManualSelected] = useState(() => {
+    // If manually selecting team, include username once
+    if (details.teamType === "manual" && username && Array.isArray(details.manualSelected)) {
+      return details.manualSelected.includes(username)
+        ? details.manualSelected
+        : [username, ...details.manualSelected];
+    }
+    return details.manualSelected || [];
+  });
 
-  // Always include current user if manual team selection step active
+  // Always guarantee current user is included if in manual team selection step
   React.useEffect(() => {
     if (
-      details.step === 3 &&
       details.teamType === "manual" &&
       username &&
       !manualSelected.includes(username)
     ) {
-      setManualSelected((prev) => [username, ...prev]);
+      setManualSelected(prev => [username, ...prev]);
     }
-    // Only run when step or teamType or username changes
     // eslint-disable-next-line
-  }, [details.step, details.teamType, username]);
+  }, [details.teamType, username]);
   
   // Step 1: Enter project name
   if (details.step === 1) {
