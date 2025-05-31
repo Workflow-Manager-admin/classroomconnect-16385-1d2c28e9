@@ -1209,7 +1209,7 @@ function CallsPanel({ username, classCode }) {
           </div>
         ) : (
           <div className="cc-calls-ongoing">
-            <h3>
+            <h3 style={{ color: NAVY }}>
               {activeTab === "audio" ? "Audio" : "Video"} Call in Progress
             </h3>
             <div className="cc-calls-fakevideo">
@@ -1217,10 +1217,10 @@ function CallsPanel({ username, classCode }) {
                 <span role="img" aria-label="avatar" style={{ fontSize: "3.5rem" }}>
                   🎧
                 </span>
-                <div style={{fontWeight:"700", fontSize:"1.25rem", marginTop:5}}>
+                <div style={{fontWeight:"700", fontSize:"1.25rem", marginTop:5, color: NAVY}}>
                   {username}
                 </div>
-                <div style={{fontSize:13, color:"#567", marginTop:4}}>
+                <div style={{fontSize:13, color:NAVY, marginTop:4}}>
                   {activeTab === "video"
                     ? "Camera simulation active"
                     : "Audio-only simulation"}
@@ -1231,7 +1231,7 @@ function CallsPanel({ username, classCode }) {
                   className="cc-btn cc-btn-large"
                   style={{
                     background: secondary,
-                    color: "#142"
+                    color: NAVY
                   }}
                   onClick={endCall}
                 >
