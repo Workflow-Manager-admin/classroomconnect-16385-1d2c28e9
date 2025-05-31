@@ -345,23 +345,53 @@ function App() {
     <div className="app-bg-contrast">
       <div className="app-container-centered">
         <div className="main-white-container">
-          <header className="app-logo-header" style={{ marginBottom: 26 }}>
-            <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
-              <svg
-                width="30"
-                height="30"
-                viewBox="0 0 32 32"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ display: 'block' }}
-              >
-                <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2"/>
-                <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2"/>
-                <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7"/>
-                <circle cx="16" cy="26" r="1.1" fill="#4F8CFF"/>
-              </svg>
-            </span>
-            Classroom Insider
+          <header className="app-logo-header" style={{ marginBottom: 26, position: "relative" }}>
+            <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
+              <span className="app-logo-emoji" aria-label="Book Logo" style={{ marginRight: 10, display: 'flex', alignItems: 'center', fontSize: 28 }}>
+                <svg
+                  width="30"
+                  height="30"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{ display: 'block' }}
+                >
+                  <rect x="5" y="6" width="22" height="20" rx="4" fill="#FFD166" stroke="#4F8CFF" strokeWidth="2"/>
+                  <path d="M16 6v20" stroke="#4F8CFF" strokeWidth="2"/>
+                  <path d="M7 8h18" stroke="#06D6A0" strokeWidth="1.7"/>
+                  <circle cx="16" cy="26" r="1.1" fill="#4F8CFF"/>
+                </svg>
+              </span>
+              <span style={{flex:1, fontWeight: 800}}>Classroom Insider</span>
+              <span className="user-info-topright" style={{
+                marginLeft: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                fontWeight: 700,
+                fontSize: 15.5,
+                color: "#115577",
+                background: "#f8fbff",
+                padding: "6.5px 15px 6.5px 16px",
+                borderRadius: 16,
+                boxShadow: "0 1.5px 7px 0 rgba(30,80,120,0.09)",
+                border: "1px solid #e3e9f4",
+                minWidth: 144
+              }}>
+                <span style={{fontWeight: 850, fontSize: 15.8, color: "#224e81"}} title="Your nickname">{username}</span>
+                <span style={{
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  marginTop: 2,
+                  color: "#599093",
+                  background: "#e4fbd8",
+                  padding: "2.8px 9px",
+                  borderRadius: 13,
+                  fontFamily: "monospace",
+                  letterSpacing: 0.5
+                }} title="Your user code">ID: {userCode}</span>
+              </span>
+            </div>
           </header>
           <section className="left-vertical-actions">
             <button
