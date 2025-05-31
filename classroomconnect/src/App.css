@@ -132,15 +132,15 @@ body {
 /* Additional override for modals & cta-type button backgrounds where light blue is referenced inline or in modal */
 .cc-btn-lightblue,
 .cc-modal-btn-cta {
-  background: #60A9FF !important;
-  color: #001f4d !important;
+  background: #7393B3 !important;
+  color: #fff !important;
 }
 
 .cc-btn-lightblue:hover,
 .cc-modal-btn-cta:hover,
 .cc-btn-lightblue:focus,
 .cc-modal-btn-cta:focus {
-  background: #3f8deb !important;
+  background: #4a6485 !important;
   color: #fff !important;
 }
 .cc-footer-content {
