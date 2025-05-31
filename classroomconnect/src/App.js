@@ -1421,8 +1421,462 @@ function ServicesPanel({ classroom, loggedInUser, onLeaveClassroom }) {
   );
 }
 
+/**
+ * PUBLIC_INTERFACE
+ * Bulletin Board for the classroom: post list, add/edit/delete/filter, tags.
+ * Logic is in-memory/sessionStorage. UI is contained here.
+ */
 function BulletinBoard({ classroom, loggedInUser, userCode }) {
-  // ... (Unchanged: see template)
+  // Per-classroom board posts are stored in sessionStorage under "bulletinBoardPosts"
+  const boardSessionKey = "bulletinBoardPosts";
+  const [posts, setPosts] = React.useState(() => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}");
+      return all[classroom.code] || [];
+    } catch {
+      return [];
+    }
+  });
+
+  // For updating list: refresh from sessionStorage
+  const syncFromSession = () => {
+    try {
+      const all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}");
+      setPosts(all[classroom.code] || []);
+    } catch {
+      setPosts([]);
+    }
+  };
+
+  // Store when posts change
+  React.useEffect(() => {
+    try {
+      let all = {};
+      try { all = JSON.parse(window.sessionStorage.getItem(boardSessionKey) || "{}"); } catch {}
+      all[classroom.code] = posts;
+      window.sessionStorage.setItem(boardSessionKey, JSON.stringify(all));
+    } catch {}
+  }, [posts, classroom.code]);
+
+  // Add/Edit Post state
+  const [formOpen, setFormOpen] = React.useState(false);
+  const [editingPostId, setEditingPostId] = React.useState(null);
+  const [formTitle, setFormTitle] = React.useState("");
+  const [formContent, setFormContent] = React.useState("");
+  const [formImportance, setFormImportance] = React.useState("average");
+  const [formReminder, setFormReminder] = React.useState(""); // date-time string
+
+  // Filtering
+  const [showHighOnly, setShowHighOnly] = React.useState(false);
+  const [showRemindersOnly, setShowRemindersOnly] = React.useState(false);
+
+  // Sorting: Always newest first
+  const sortedPosts = [...posts]
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .filter(p => {
+      let ok = true;
+      if (showHighOnly) ok = ok && p.importance === "high";
+      if (showRemindersOnly) ok = ok && !!p.reminder;
+      return ok;
+    });
+
+  // Reset form fields
+  function resetForm() {
+    setFormTitle("");
+    setFormContent("");
+    setFormImportance("average");
+    setFormReminder("");
+    setEditingPostId(null);
+  }
+
+  // Handle new or edit post submit
+  function handlePostSubmit(e) {
+    e.preventDefault();
+    const trimmedTitle = formTitle.trim();
+    const trimmedContent = formContent.trim();
+    if (!trimmedTitle || !trimmedContent) return;
+
+    if (editingPostId) {
+      // Edit mode
+      setPosts(prev =>
+        prev.map(p =>
+          p.id === editingPostId
+            ? { ...p, title: trimmedTitle, content: trimmedContent, importance: formImportance, reminder: formReminder }
+            : p
+        )
+      );
+    } else {
+      // New post mode
+      const newPost = {
+        id: "b" + Math.random().toString(36).slice(2, 12) + Date.now().toString().slice(-6),
+        author: loggedInUser,
+        authorCode: userCode,
+        title: trimmedTitle,
+        content: trimmedContent,
+        importance: formImportance,
+        reminder: formReminder || "",
+        timestamp: Date.now(),
+      };
+      setPosts(prev => [newPost, ...prev].slice(0, 60)); // cap to 60 most recent
+    }
+    setFormOpen(false);
+    resetForm();
+  }
+
+  // Edit post (only if own)
+  function handleEditPost(post) {
+    setEditingPostId(post.id);
+    setFormTitle(post.title);
+    setFormContent(post.content);
+    setFormImportance(post.importance);
+    setFormReminder(post.reminder || "");
+    setFormOpen(true);
+  }
+
+  // Delete post (only if own)
+  function handleDeletePost(postId) {
+    setPosts(prev => prev.filter(p => p.id !== postId));
+  }
+
+  // When editing target post changes, open form
+  React.useEffect(() => {
+    if (editingPostId) setFormOpen(true);
+  }, [editingPostId]);
+
+  // Visual highlighting helpers
+  const importanceColors = {
+    high: { bg: "#ffe5e5", color: "#c8352a", border: "#ec5555" },
+    average: { bg: "#f6f2fa", color: "#684580", border: "#b2a0ce" },
+    low: { bg: "#f4fcf8", color: "#178e53", border: "#74e0b2" },
+  };
+  const importanceLabels = {
+    high: "High",
+    average: "Average",
+    low: "Low",
+  };
+  const importanceIcons = {
+    high: "‼️",
+    average: "🔔",
+    low: "📝",
+  };
+  function getImportanceStyle(importance) {
+    return importanceColors[importance] || importanceColors.average;
+  }
+  // Helper for check if should highlight
+  function shouldHighlight(post) {
+    if (post.importance === "high") return true;
+    if (post.reminder) {
+      try {
+        if (new Date(post.reminder).getTime() > Date.now() - 900000) return true;
+      } catch {}
+    }
+    return false;
+  }
+
+  // Date/time utilities
+  function formatTs(ts) {
+    const d = new Date(ts);
+    return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function formatReminder(rem) {
+    if (!rem) return "";
+    try {
+      const d = new Date(rem);
+      return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    } catch {
+      return rem;
+    }
+  }
+
+  // Main UI
+  return (
+    <div style={{ minHeight: 365, paddingBottom: 17 }}>
+      <h2 style={{
+        color: "#19649e", fontWeight: 800, marginTop: 1, marginBottom: 12, fontSize: 23,
+        display: "flex", alignItems: "center"
+      }}>
+        <span role="img" aria-label="Bulletin Board" style={{ marginRight: 7 }}>📌</span>
+        Bulletin Board
+        <button
+          className="main-action-btn main-action-btn-create"
+          tabIndex={0}
+          aria-label="Add post"
+          style={{
+            marginLeft: 14,
+            fontSize: 15.5,
+            padding: "7px 18px",
+            background: "#FFD166",
+            color: "#234",
+            fontWeight: 800,
+            minWidth: 72,
+          }}
+          onClick={() => {
+            setFormOpen(true);
+            setEditingPostId(null);
+            resetForm();
+          }}
+        >
+          + Post
+        </button>
+      </h2>
+      <div style={{ display: "flex", gap: 14, marginBottom: 9, alignItems: "center" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+          <input
+            type="checkbox"
+            checked={showHighOnly}
+            onChange={e => setShowHighOnly(e.target.checked)}
+            style={{marginRight:5}}
+          />
+          High Importance Only
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600 }}>
+          <input
+            type="checkbox"
+            checked={showRemindersOnly}
+            onChange={e => setShowRemindersOnly(e.target.checked)}
+            style={{marginRight:5}}
+          />
+          Reminders Only
+        </label>
+        <span style={{ marginLeft: 17, color: "#a2a", fontWeight: 600, fontSize: 13.3 }}>
+          {sortedPosts.length} post{sortedPosts.length !== 1 ? "s" : ""}
+        </span>
+      </div>
+      {formOpen && (
+        <div
+          aria-modal="true"
+          role="dialog"
+          style={{
+            background: "#f8fbff",
+            border: "2.2px solid #FFD166",
+            boxShadow: "0 4px 28px 0 rgba(120,144,220,0.06)",
+            borderRadius: 19,
+            padding: "24px 18px 14px 18px",
+            marginBottom: 22,
+            marginTop: 4,
+            position: "relative",
+            maxWidth: 470,
+          }}
+        >
+          <form onSubmit={handlePostSubmit}>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontWeight: 700, color: "#234", display: "block", marginBottom: 4 }}>Title</label>
+              <input
+                className="white-input"
+                required
+                maxLength={48}
+                value={formTitle}
+                onChange={e => setFormTitle(e.target.value)}
+                autoFocus
+                style={{ width: "100%", marginBottom: 7 }}
+                placeholder="What’s the announcement about?"
+              />
+            </div>
+            <div style={{ marginBottom: 9 }}>
+              <label style={{ fontWeight: 700, color: "#234", display: "block", marginBottom: 4 }}>Details</label>
+              <textarea
+                className="white-input"
+                required
+                maxLength={280}
+                value={formContent}
+                onChange={e => setFormContent(e.target.value)}
+                style={{
+                  width: "100%", minHeight: 56, fontSize: 15.7, fontFamily: "inherit",
+                  fontWeight: 600, marginBottom: 7, resize: "vertical"
+                }}
+                placeholder="Announcement text…"
+              />
+            </div>
+            <div style={{ display: "flex", gap: 13, alignItems: "center", marginBottom: 10 }}>
+              <label style={{ fontWeight: 700, color: "#297" }}>Importance:</label>
+              <select
+                value={formImportance}
+                onChange={e => setFormImportance(e.target.value)}
+                className="white-input"
+                style={{ width: 110, fontWeight: 700, color: getImportanceStyle(formImportance).color }}
+              >
+                <option value="high">High ⚠️</option>
+                <option value="average">Average 🔔</option>
+                <option value="low">Low 📝</option>
+              </select>
+              <label style={{ marginLeft: 17, fontWeight: 700, color: "#297" }}>Reminder:</label>
+              <input
+                className="white-input"
+                type="datetime-local"
+                value={formReminder}
+                onChange={e => setFormReminder(e.target.value)}
+                style={{ width: 178, fontWeight: 600, color: "#125" }}
+                min={new Date(Date.now() - 60000).toISOString().slice(0, 16)}
+              />
+              <span style={{ fontSize: 14.5, color: "#b99" }}>(optional)</span>
+            </div>
+            <div style={{ display: "flex", gap: 13, marginTop: 10 }}>
+              <button
+                className="main-action-btn main-action-btn-create"
+                type="submit"
+                style={{ flex: 1, fontWeight: 800 }}
+              >
+                {editingPostId ? "Update" : "Post"}
+              </button>
+              <button
+                className="main-action-btn"
+                type="button"
+                style={{
+                  background: "#F5F8FA",
+                  color: "#954",
+                  border: "2px solid #e6ecf5",
+                  fontWeight: 800,
+                  flex: 1,
+                }}
+                onClick={() => {
+                  setFormOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+      <div style={{
+        marginTop: 2,
+        marginBottom: 7,
+        minHeight: 165,
+        background: "#fafcff",
+        borderRadius: 13,
+        border: "1.6px solid #97acd8",
+        padding: "13px 8px 7px 8px",
+        boxShadow: "0 1.5px 8px 0 rgba(90,140,210,0.03)",
+      }}>
+        {sortedPosts.length === 0 ? (
+          <div style={{
+            color: "#b8a", fontWeight: 600, fontSize: 15.5,
+            textAlign: "center", padding: 25, opacity: 0.83
+          }}>
+            No posts yet. Announcements or reminders for the classroom will appear here!
+          </div>
+        ) : (
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              {sortedPosts.map(post => {
+                const mine = post.authorCode === userCode;
+                const important = post.importance === "high";
+                const reminderDue = post.reminder && new Date(post.reminder).getTime() > Date.now() - 900000;
+                const highlight = shouldHighlight(post);
+                const impStyle = getImportanceStyle(post.importance);
+                return (
+                  <li
+                    key={post.id}
+                    style={{
+                      background: highlight ? impStyle.bg : "#fff",
+                      border: highlight ? `2.1px solid ${impStyle.border}` : "2px solid #eef2fb",
+                      boxShadow: important ?
+                        "0 4px 18px 0 rgba(230,63,53,0.08)" :
+                        "0 2.5px 8px 0 rgba(150,150,200,0.06)",
+                      borderRadius: 15,
+                      marginBottom: 13,
+                      padding: "13px 17px 8px 15px",
+                      position: "relative",
+                      transition: "background 0.14s, border .13s"
+                    }}
+                  >
+                    <div style={{
+                      fontWeight: 900,
+                      color: impStyle.color,
+                      fontSize: 19,
+                      marginBottom: 2,
+                      display: "flex", alignItems: "center", gap: 5
+                    }}>
+                      <span>
+                        {importanceIcons[post.importance]} 
+                      </span>
+                      {post.title}
+                      {important &&
+                        <span style={{ marginLeft: 8, fontSize: 13.3, color: "#fff",
+                          background: "#d14", borderRadius: 999, padding: "2.2px 9px", fontWeight: 800 }}>
+                          HIGH
+                        </span>
+                      }
+                      {reminderDue && (
+                        <span style={{
+                          marginLeft: 7, fontSize: 13, color: "#fff",
+                          background: "#44b", borderRadius: 999, padding: "2.2px 10px", fontWeight: 800,
+                        }}>
+                          Reminder
+                        </span>
+                      )}
+                    </div>
+                    <div style={{
+                      fontWeight: 600,
+                      color: "#2f2979",
+                      fontSize: 14.9,
+                      marginTop: 0,
+                      marginBottom: 4,
+                      whiteSpace: "pre-wrap"
+                    }}>{post.content}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 2 }}>
+                      <span style={{
+                        color: "#888",
+                        fontWeight: 500,
+                        fontSize: 12.7
+                      }}>
+                        Posted by <span style={{ color: "#753", fontWeight: 800 }}>{post.author}</span>
+                      </span>
+                      <span style={{ color: "#a98", fontWeight: 700, fontSize: 12.5 }}>
+                        • {formatTs(post.timestamp)}
+                      </span>
+                      {post.reminder &&
+                        <span style={{ color: "#278", fontWeight: 700, fontSize: 12.5 }}>
+                          • Remind at {formatReminder(post.reminder)}
+                        </span>
+                      }
+                    </div>
+                    <div style={{ position: "absolute", right: 22, top: 10, display: "flex", gap: 9 }}>
+                      {mine && (
+                        <>
+                          <button
+                            aria-label="Edit"
+                            title="Edit post"
+                            onClick={() => handleEditPost(post)}
+                            style={{
+                              background: "#7E9CB2",
+                              color: "#fff",
+                              fontWeight: 800,
+                              padding: "2px 11px",
+                              fontSize: 15.5,
+                              borderRadius: 11,
+                              border: "none",
+                              marginRight: 2,
+                              opacity: 0.86, cursor: "pointer"
+                            }}
+                          >✏️</button>
+                          <button
+                            aria-label="Delete"
+                            title="Delete post"
+                            onClick={() => handleDeletePost(post.id)}
+                            style={{
+                              background: "#FFD166",
+                              color: "#B52",
+                              fontWeight: 900,
+                              padding: "2px 11px",
+                              fontSize: 15.5,
+                              borderRadius: 11,
+                              border: "none",
+                              opacity: 0.82, cursor: "pointer"
+                            }}
+                          >🗑️</button>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )
+        }
+      </div>
+    </div>
+  );
 }
 
 /**
