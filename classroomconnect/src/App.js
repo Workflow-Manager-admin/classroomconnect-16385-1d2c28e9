@@ -12,7 +12,11 @@ function generateCode(length = 6, alphanumeric = false) {
   return code;
 }
 
-// ===== STYLES =====
+/**
+ * ===== STYLES =====
+ * Update navy blue for all text
+ */
+const NAVY = "#001f4d";
 const babyBlue = "#A7C7E7";
 const accent = "#06D6A0";
 const secondary = "#FFD166";
@@ -27,7 +31,10 @@ const themeVars = {
   "--main-secondary": secondary,
   "--border-radius": "22px",
   "--large-radius": "30px",
-  "--card-radius": "18px"
+  "--card-radius": "18px",
+  "--navy": NAVY,
+  "--text-color": NAVY,
+  "--text-secondary": "#406495"
 };
 
 const applyTheme = () => {
@@ -175,14 +182,14 @@ function App() {
   return (
     <div className="cc-main-bg">
       <nav className="cc-navbar">
-        <div className="cc-logo">
+        <div className="cc-logo" style={{ color: NAVY }}>
           <span className="cc-logo-img" role="img" style={{ marginRight: 5 }}>
             🎒
           </span>
           ClassroomConnect
         </div>
         <div className="cc-nav-right">
-          <span className="cc-username">{username}</span>
+          <span className="cc-username" style={{ color: NAVY }}>{username}</span>
           <span className="cc-ucode" title="Your unique user code">
             {userCode}
           </span>
