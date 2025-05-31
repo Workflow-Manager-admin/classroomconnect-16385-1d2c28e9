@@ -171,7 +171,7 @@ body,
 .cc-class-tab-btn, .cc-class-tab-btn-active {
   background: var(--primary-blue);
   color: var(--white);
-  border: none; /* REMOVE ALL BORDERS */
+  border: none !important;
   border-radius: var(--border-radius);
   font-family: inherit;
   font-size: 1.07em;
@@ -197,7 +197,7 @@ body,
 .cc-btn-create, .cc-btn-join {
   background: var(--white) !important;
   color: var(--navy) !important;
-  border: none !important;   /* REMOVE BORDER completely */
+  border: none !important;
   border-radius: 32px !important;
   box-shadow: 0 2.5px 12px 0 rgba(0, 31, 77, 0.09), 0 2.5px 8px 0 rgba(115,147,179,0.11);
   letter-spacing: 1px;
@@ -212,17 +212,17 @@ body,
 }
 
 .cc-btn-create {
-  border-color: var(--orange) !important;
+  border-color: transparent !important;
 }
 .cc-btn-join {
-  border-color: var(--accent) !important;
+  border-color: transparent !important;
 }
 
 /* Visually distinct and accessible hover/focus states */
 .cc-btn-create:hover, .cc-btn-create:focus {
   background: var(--orange) !important;
   color: var(--navy) !important;
-  border-color: var(--navy) !important;
+  border: none !important;
   box-shadow: 0 4px 18px 0 rgba(255,209,102,0.13), 0 2.5px 8px 0 rgba(0,31,77,0.14);
   outline: 3px solid #fdc657;
   outline-offset: 1.5px;
@@ -230,7 +230,7 @@ body,
 .cc-btn-join:hover, .cc-btn-join:focus {
   background: var(--accent) !important;
   color: var(--navy) !important;
-  border-color: var(--navy) !important;
+  border: none !important;
   box-shadow: 0 4px 18px 0 rgba(6,214,160,0.12), 0 2.5px 8px 0 rgba(0,31,77,0.12);
   outline: 3px solid #06D6A0;
   outline-offset: 1.5px;
@@ -239,20 +239,20 @@ body,
 .cc-btn-create:active {
   background: #ffeda9 !important;
   color: var(--navy) !important;
+  border: none !important;
 }
 .cc-btn-join:active {
   background: #7efedd !important;
   color: var(--navy) !important;
+  border: none !important;
 }
-
 /* End custom styles for Create/Join buttons */
-
 
 .cc-class-tab-btn, .cc-class-tab-btn-active {
   min-width: 92px;
   padding: 11px 22px;
   border-radius: 24px;
-  border: none;
+  border: none !important;
   font-size: 1.09em;
   font-weight: 800;
   text-transform: uppercase;
@@ -280,7 +280,7 @@ body,
 .cc-card,
 .cc-classcard {
   border-radius: var(--large-radius);
-  border: 3px solid #fbb040;
+  border: none !important;
   background: linear-gradient(135deg, #FFD795 80%, #fff6c1 100%);
   color: var(--navy);
   box-shadow: 0 6px 24px 0 rgba(220,187,93,0.13), var(--shadow);
@@ -332,6 +332,7 @@ body,
   margin-bottom: 12px;
 }
 
+/* --- FLEX LAYOUT FOR CLASSROOM CARDS --- */
 .cc-classcards-grid {
   margin-top: 8px;
   width: 100%;
@@ -342,7 +343,7 @@ body,
   align-items: stretch;
   padding-bottom: 18px;
 }
-/* Optionally allow for grid fallback via a cc-classcards-grid.is-grid class */
+/* Optionally, fallback grid for .cc-classcards-grid.is-grid */
 .cc-classcards-grid.is-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
@@ -350,18 +351,18 @@ body,
   justify-items: center;
   padding-bottom: 18px;
 }
+
 @media (max-width: 900px) {
   .cc-classcards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    padding: 8px 2vw 16px 2vw;
     gap: 16px;
+    padding: 8px 2vw 16px 2vw;
   }
 }
 @media (max-width: 650px) {
   .cc-classcards-grid {
-    grid-template-columns: 1fr;
-    padding: 8px 2vw 16px 2vw;
+    flex-direction: column;
     gap: 12px;
+    padding: 8px 2vw 16px 2vw;
   }
 }
 
