@@ -175,11 +175,6 @@ function App() {
         </nav>
         <div className="cc-register-wrap">
           <div className="cc-card cc-register-card">
-            <h2 style={{ color: NAVY }}>Welcome to ClassroomConnect!</h2>
-            <p style={{ color: NAVY }}>
-              Create or join virtual classrooms! Enter your nickname to get
-              started.
-            </p>
             <form onSubmit={handleRegistration} style={{ width: "100%" }}>
               <input
                 className="cc-input"
@@ -259,7 +254,7 @@ function App() {
           </span>
           <span className="cc-footer-spacer" />
           <span style={{ color: "#406495", fontSize: "0.98rem" }}>
-            Playful learning, connected! &copy; {new Date().getFullYear()}
+            &copy; {new Date().getFullYear()}
           </span>
         </div>
       </footer>
