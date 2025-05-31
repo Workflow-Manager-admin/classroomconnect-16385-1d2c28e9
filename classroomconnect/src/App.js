@@ -1094,6 +1094,7 @@ function GroupProjects({
             funPalette={funPalette}
             onComplete={completeNewProject}
             processTeamCreationFlow={processTeamCreationFlow}
+            username={username}
           />
         )}
         <div className="cc-projects-list">
@@ -1220,7 +1221,8 @@ function ProjectTeamModal({
   classroomMembers,
   onComplete,
   funPalette,
-  processTeamCreationFlow
+  processTeamCreationFlow,
+  username // Add username as a prop
 }) {
   const [manualSelected, setManualSelected] = useState(details.manualSelected);
 
@@ -1330,10 +1332,13 @@ function ProjectTeamModal({
   }
   // Step 3A: Manual - list members, allow selection
   if (details.teamType === "manual" && details.step === 3) {
-    // Always include current user
-    if (!manualSelected.includes(classroomMembers[0]))
-      setManualSelected([classroomMembers[0], ...manualSelected]);
-
+    // Always include current user in selection
+    useEffect(() => {
+      if (username && !manualSelected.includes(username)) {
+        setManualSelected((prev) => [username, ...prev]);
+      }
+      // eslint-disable-next-line
+    }, [username]);
     return (
       <div style={{
         position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh",
