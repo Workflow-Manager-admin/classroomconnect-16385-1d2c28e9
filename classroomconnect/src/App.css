@@ -232,12 +232,12 @@ body {
 }
 
 .cc-bg-babyblue {
-  background: #60A9FF !important;
-  color: #001f4d !important;
+  background: #7393B3 !important;
+  color: #fff !important;
 }
 .cc-classcard:focus, .cc-classcard:hover {
   transform: translateY(-5px) scale(1.04);
-  box-shadow: 0 16px 45px #a7c7e7bb, 0 7px 23px #b8ccee34 inset;
+  box-shadow: 0 16px 45px #7393b3bb, 0 7px 23px #a7bbd234 inset;
   z-index: 5;
 }
 
