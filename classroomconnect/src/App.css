@@ -184,15 +184,24 @@ body, .app-bg-contrast {
   outline: 2.5px solid var(--accent);
 }
 
+.round-btn-join:focus, .round-btn-join:hover {
+  /* Same as round-btn-create hover/focus for visual consistency */
+  background: var(--hover-bg);
+  color: var(--primary-blue-dark);
+  border: 2px solid var(--primary-blue);
+  outline: 2.5px solid var(--accent);
+}
+
 .round-btn-create {
   background: var(--container-bg);
   color: var(--primary-blue-dark);
   border: 2px solid var(--primary-blue);
 }
 .round-btn-join {
+  /* Inherit default round-action-btn, but match round-btn-create exactly */
   background: var(--container-bg);
-  color: var(--orange);
-  border: 2px solid var(--orange);
+  color: var(--primary-blue-dark);
+  border: 2px solid var(--primary-blue);
 }
 
 .round-input {
