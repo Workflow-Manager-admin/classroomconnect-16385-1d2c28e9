@@ -166,14 +166,14 @@ body {
 
 .cc-dashboard-wrap, .cc-classroom-bg {
   max-width: 1140px !important;
-  margin: 14px auto !important;
+  margin: 4px auto 0 auto !important; /* Reduced top margin from 14px */
   padding-left: 7px;
   padding-right: 7px;
 }
 
 .cc-classroom-bg {
   background: none !important;
-  padding-top: 10px !important;
+  padding-top: 0 !important; /* Remove extra top padding */
 }
 
 /* Stronger Section Heading hierarchy */
