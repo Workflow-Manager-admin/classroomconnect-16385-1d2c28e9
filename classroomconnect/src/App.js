@@ -364,7 +364,13 @@ function Dashboard({
             style={{
               background: babyBlue,
               color: "#fff",
-              border: "none"
+              textTransform: "uppercase",
+              fontWeight: 800,
+              border: "3px solid var(--orange)",
+              borderRadius: "28px",
+              padding: "16px 0",
+              letterSpacing: "1px",
+              boxShadow: "0 1.5px 7px 0 rgba(115,147,179,0.13)"
             }}
           >
             <span role="img" aria-label="add" style={{ marginRight: 10, fontSize: '1.17em', verticalAlign: "-0.08em" }}>➕</span>
@@ -394,7 +400,12 @@ function Dashboard({
                 background: babyBlue,
                 color: "#fff",
                 marginTop: 0,
-                border: "none"
+                border: "3px solid var(--accent)",
+                borderRadius: "28px",
+                padding: "16px 0",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                boxShadow: "0 1.5px 7px 0 rgba(6,214,160,0.08)"
               }}
             >
               <span role="img" aria-label="join" style={{ marginRight: 10, fontSize: '1.05em', verticalAlign: "-0.05em" }}>🚪</span>
